@@ -1,0 +1,27 @@
+<section class="page-shell admin-page admin-detail-page">
+  <div class="page-heading admin-heading">
+    <div><p class="eyebrow">BANK ADMINISTRATION</p><h1>Customer Forex KYC</h1></div>
+    <div class="admin-heading-actions">
+      <div class="admin-navigation" data-bind="event: { keydown: adminMenuKeydown }">
+        <button type="button" id="admin-navigation-toggle" class="admin-navigation-toggle" aria-label="Admin sections" aria-controls="admin-navigation-list" aria-expanded="false" data-bind="click: toggleAdminMenu, attr: { 'aria-expanded': adminMenuOpen() ? 'true' : 'false' }"><span aria-hidden="true">⋮</span></button>
+        <nav id="admin-navigation-list" class="admin-navigation-list" aria-label="Admin sections" style="display:none" data-bind="visible: adminMenuOpen">
+          <div data-bind="foreach: adminSections">
+            <a data-bind="text: label, attr: { href: $parent.adminSectionLink(id), 'aria-current': $parent.selectedAdminSection() === id ? 'page' : null }"></a>
+          </div>
+        </nav>
+      </div>
+      <a class="secondary-button" href="?ojr=admin-forex">Back to Forex operations</a>
+    </div>
+  </div>
+  <div class="alert alert-error" data-bind="visible: error"><span data-bind="text: error"></span></div>
+  <div class="alert alert-success" data-bind="visible: notice"><span data-bind="text: notice"></span></div>
+  <section class="content-card admin-section">
+    <div class="card-title-row">
+      <p class="eyebrow">FOREX OPERATIONS</p>
+      <button type="button" class="secondary-button" data-bind="click: loadForexAdmin, disable: forexBusy">Refresh</button>
+    </div>
+        <h3>Customer Forex KYC</h3>
+        <div class="admin-control-grid"><label>Customer user ID<input type="number" min="1" data-bind="value: kycUserId"></label><label>Status<select data-bind="value: kycStatus"><option value="PENDING">Pending</option><option value="APPROVED">Approved</option><option value="REJECTED">Rejected</option><option value="EXPIRED">Expired</option></select></label></div>
+        <button class="primary-button" data-bind="click: updateForexKyc, disable: forexBusy">Update Forex KYC</button>
+  </section>
+</section>

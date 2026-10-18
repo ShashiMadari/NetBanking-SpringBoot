@@ -1,0 +1,57 @@
+server:
+  port: 8444
+
+spring:
+  application:
+    name: o-bank-identity
+  
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: o-bank-identity
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+  datasource:
+    url: jdbc:oracle:thin:@//127.0.0.1:1522/FREEPDB1
+    username: o_bank_identity
+    password: ${IDENTITY_DB_PASSWORD}
+    driver-class-name: oracle.jdbc.OracleDriver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      "[mail.smtp.auth]": true
+      "[mail.smtp.starttls.enable]": true
+      "[mail.smtp.connectiontimeout]": 5000
+      "[mail.smtp.timeout]": 5000
+      "[mail.smtp.writetimeout]": 5000
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+app:
+  demo:
+    show-credentials: false
+
+  security:
+    # Shared Base64 secret for the academic team only.
+    jwt-secret: ${JWT_SECRET}
+    jwt-expiration-seconds: 3600
+
+  internal:
+    api-key: ${IDENTITY_API_KEY}
+
+  mail:
+    from: ${MAIL_USERNAME}

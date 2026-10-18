@@ -1,0 +1,89 @@
+server:
+  port: 8446
+
+spring:
+  application:
+    name: o-bank-credit
+
+  datasource:
+    url: jdbc:oracle:thin:@//127.0.0.1:1522/FREEPDB1
+    username: o_bank_credit
+    password: ${CREDIT_DB_PASSWORD}
+    driver-class-name: oracle.jdbc.OracleDriver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      "[mail.smtp.auth]": true
+      "[mail.smtp.starttls.enable]": true
+      "[mail.smtp.connectiontimeout]": 5000
+      "[mail.smtp.timeout]": 5000
+      "[mail.smtp.writetimeout]": 5000
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+app:
+  security:
+    jwt-secret: ${JWT_SECRET}
+    jwt-expiration-seconds: 3600
+
+  mail:
+    from: ${MAIL_USERNAME}
+
+  identity:
+    base-url: ${IDENTITY_BASE_URL:http://localhost:8444}
+
+  banking:
+    base-url: ${BANKING_BASE_URL:http://localhost:8445}
+
+  internal:
+    identity-api-key: ${IDENTITY_API_KEY}
+    banking-api-key: ${BANKING_API_KEY}
+
+logging:
+  level:
+    org.springframework.security: TRACE
+
+#credit-card-statement-scheduler:
+  #cron: "0 */2 * * * *"
+
+#credit-card-emi-reminder-scheduler:
+  #cron: "0 */2 * * * *"
+
+#credit-card-statement-scheduler:
+  #cron: "0 0 9 1 * *"
+
+#credit-card-emi-reminder-scheduler:
+  #cron: "0 0 9 * * *"
+
+#loan-statement-scheduler:
+  #cron: "0 10 9 1 * *"
+
+#loan-emi-reminder-scheduler:
+  #cron: "0 20 9 * * *"
+
+#loan-statement-scheduler:
+  #cron: "0 */2 * * * *"
+
+#loan-emi-reminder-scheduler:
+  #cron: "0 */2 * * * *"
+
+credit-card-statement-scheduler:
+  cron: "10 * * * * *"
+loan-statement-scheduler:
+  cron: "20 * * * * *"
+credit-card-emi-reminder-scheduler:
+  cron: "30 * * * * *"
+loan-emi-reminder-scheduler:
+  cron: "40 * * * * *"

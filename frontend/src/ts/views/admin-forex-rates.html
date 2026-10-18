@@ -1,0 +1,51 @@
+<section class="page-shell admin-page admin-detail-page">
+  <div class="page-heading admin-heading">
+    <div><p class="eyebrow">BANK ADMINISTRATION</p><h1>Forex currency settings</h1></div>
+    <div class="admin-heading-actions">
+      <div class="admin-navigation" data-bind="event: { keydown: adminMenuKeydown }">
+        <button type="button" id="admin-navigation-toggle" class="admin-navigation-toggle" aria-label="Admin sections" aria-controls="admin-navigation-list" aria-expanded="false" data-bind="click: toggleAdminMenu, attr: { 'aria-expanded': adminMenuOpen() ? 'true' : 'false' }"><span aria-hidden="true">⋮</span></button>
+        <nav id="admin-navigation-list" class="admin-navigation-list" aria-label="Admin sections" style="display:none" data-bind="visible: adminMenuOpen">
+          <div data-bind="foreach: adminSections">
+            <a data-bind="text: label, attr: { href: $parent.adminSectionLink(id), 'aria-current': $parent.selectedAdminSection() === id ? 'page' : null }"></a>
+          </div>
+        </nav>
+      </div>
+      <a class="secondary-button" href="?ojr=admin-forex">Back to Forex operations</a>
+    </div>
+  </div>
+  <div class="alert alert-error" data-bind="visible: error"><span data-bind="text: error"></span></div>
+  <div class="alert alert-success" data-bind="visible: notice"><span data-bind="text: notice"></span></div>
+  <section class="content-card admin-section">
+    <div class="card-title-row">
+      <p class="eyebrow">FOREX OPERATIONS</p>
+      <button type="button" class="secondary-button" data-bind="click: loadForexAdmin, disable: forexBusy">Refresh</button>
+    </div>
+        <h3>Automated exchange-rate settings</h3>
+        <p class="muted">Market rates are updated by the Forex scheduler. Administrators can manage the customer markup and whether a currency is available.</p>
+        <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Currency</th><th>Reference INR rate</th><th>Live market rate</th><th>Markup</th><th>Status</th><th></th></tr></thead><tbody data-bind="foreach: forexRates"><tr><td data-bind="text: currencyCode"></td><td data-bind="text: baseRateInr"></td><td data-bind="text: currentRateInr"></td><td data-bind="text: markupBps + &quot; bps&quot;"></td><td data-bind="text: status"></td><td><button class="table-action" data-bind="click: () => $parent.selectForexRate($data), disable: $parent.forexBusy">Manage</button></td></tr></tbody></table></div>
+        <div class="admin-control-grid">
+          <label>Currency<input readonly data-bind="value: forexRateCurrency"></label>
+          <label>Base INR rate<input type="number" min="0.000001" step="any" data-bind="value: forexBaseRateInr"></label>
+          <label>Markup (basis points)<input type="number" min="0" max="1000" step="1" data-bind="value: forexMarkupBps"></label>
+          <label class="admin-check"><input type="checkbox" data-bind="checked: forexRateActive"> Active rate</label>
+        </div>
+        <button class="primary-button" data-bind="click: updateForexRate, disable: forexBusy">Update currency settings</button>
+        <button type="button" class="secondary-button" data-bind="click: toggleForexRateHistory, disable: forexBusy() || !forexRateCurrency(), text: forexRateHistoryVisible() ? 'Hide ' + forexRateCurrency() + ' rate history' : 'View ' + forexRateCurrency() + ' rate history'"></button>
+        <section class="admin-audit-list" data-bind="visible: forexRateHistoryVisible">
+          <p data-bind="visible: !forexRateHistory().length">No rate changes have been recorded for this currency yet. Update its rate to create the first history entry.</p>
+          <div class="admin-table-wrap" data-bind="visible: forexRateHistory().length">
+            <table class="admin-table">
+              <thead><tr><th>Previous rate</th><th>Current rate</th><th>Updated date &amp; time</th><th>Status</th></tr></thead>
+              <tbody data-bind="foreach: forexRateHistory">
+                <tr>
+                  <td data-bind="text: previousRateInr"></td>
+                  <td data-bind="text: newRateInr"></td>
+                  <td data-bind="text: $parent.formatDate(createdAt)"></td>
+                  <td><span class="status-badge status-success">SUCCESS</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+  </section>
+</section>

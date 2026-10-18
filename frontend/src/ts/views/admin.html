@@ -1,0 +1,34 @@
+<section class="page-shell admin-page">
+  <div class="page-heading admin-heading">
+    <div>
+      <p class="eyebrow">BANK ADMINISTRATION</p>
+      <h1>Operations dashboard</h1>
+      <p class="muted">Review and action the secured work queues for O-Bank. Every action below uses your administrator JWT and is recorded in the audit log.</p>
+    </div>
+    <div class="admin-heading-actions">
+    <button class="secondary-button" data-bind="click: loadDashboard, disable: busy">
+      <span data-bind="text: busy() ? 'Refreshing…' : 'Refresh dashboard'"></span>
+    </button>
+    </div>
+  </div>
+
+  <div class="alert alert-error" data-bind="visible: error"><span data-bind="text: error"></span></div>
+  <div class="alert alert-success" data-bind="visible: notice"><span data-bind="text: notice"></span></div>
+
+  <section class="admin-summary-grid" aria-label="Live administration overview">
+    <article class="admin-summary-card"><span>Pending beneficiary approvals</span><strong data-bind="text: pendingBeneficiaries().length"></strong><small>Needs administrator review</small></article>
+    <article class="admin-summary-card"><span>Payments matching filter</span><strong data-bind="text: totalPayments"></strong><small>Live count from Banking service</small></article>
+    <article class="admin-summary-card"><span>Active reward merchants</span><strong data-bind="text: activeMerchants"></strong><small>Credit & rewards service</small></article>
+    <article class="admin-summary-card"><span>Recent reward purchases</span><strong data-bind="text: totalRewardPurchases"></strong><small>Available for investigation</small></article>
+  </section>
+
+  <section class="admin-tools" aria-labelledby="admin-tools-heading">
+    <h2 id="admin-tools-heading" tabindex="-1">Administration tools</h2>
+    <div class="admin-tools-grid" data-bind="foreach: adminSections">
+      <a class="admin-tool-card" data-bind="attr: { href: $parent.adminSectionLink(id) }">
+        <span class="admin-tool-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path data-bind="attr: { d: icon }"></path></svg></span>
+        <span class="admin-tool-copy"><strong data-bind="text: label"></strong><small data-bind="text: description"></small></span>
+      </a>
+    </div>
+  </section>
+</section>

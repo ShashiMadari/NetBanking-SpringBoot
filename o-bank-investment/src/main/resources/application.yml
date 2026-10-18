@@ -1,0 +1,98 @@
+server:
+  port: 8449
+  error:
+    include-message: never
+
+spring:
+  application:
+    name: o-bank-investment
+  datasource:
+    url: jdbc:oracle:thin:@//127.0.0.1:1522/FREEPDB1
+    username: o_bank_investment
+    password: ${INVESTMENT_DB_PASSWORD}
+    driver-class-name: oracle.jdbc.OracleDriver
+  sql:
+    init:
+      mode: never
+  
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      "[mail.smtp.auth]": true
+      "[mail.smtp.starttls.enable]": true
+      "[mail.smtp.connectiontimeout]": 15000
+      "[mail.smtp.timeout]": 30000
+      "[mail.smtp.writetimeout]": 30000
+
+  kafka:
+    bootstrap-servers: localhost:9092
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+    consumer:
+      group-id: o-bank-investment
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+    listener:
+      ack-mode: record
+
+eureka:
+  client:
+    service-url:
+      defaultZone: "http://localhost:8761/eureka/"
+  instance:
+    hostname: "localhost"
+    prefer-ip-address: false
+
+app:
+  demo:
+    show-credentials: false
+  security:
+    jwt-secret: ${JWT_SECRET}
+    jwt-expiration-seconds: 3600
+  internal:
+    identity-api-key: ${IDENTITY_API_KEY}
+    banking-api-key: ${BANKING_API_KEY}
+    service-key: ${INVESTMENT_SERVICE_KEY}
+  kafka:
+    topics:
+      investment-order-placed: investment.order.placed.v1
+      banking-debit-succeeded: banking.account.debit.succeeded.v1
+      banking-debit-failed: banking.account.debit.failed.v1
+  
+  investment:
+    schedule:
+      enabled: true
+      fixed-delay-ms: 60000
+    
+    market:
+      enabled: true
+      fixed-delay-ms: 60000
+
+    market-settlement:
+      enabled: true
+      delay-ms: 60000
+      fixed-delay-ms: 15000
+
+    fd-maturity:
+      enabled: true
+      fixed-delay-ms: 3600000
+
+
+  mail:
+    from: ${MAIL_USERNAME}
+
+
+logging:
+  level:
+    org.springframework.security: TRACE
+
+

@@ -1,0 +1,47 @@
+<section class="login-page">
+  <div class="login-hero">
+    <p class="eyebrow">O-BANK DIGITAL</p>
+    <h1>Banking, made beautifully secure.</h1>
+    <p>Manage your accounts, cards, loans, Forex and investments from one protected space.</p>
+    <div class="hero-orb hero-orb-one"></div>
+    <div class="hero-orb hero-orb-two"></div>
+  </div>
+  <main class="login-card" aria-label="Sign in">
+    <p class="eyebrow">WELCOME BACK</p>
+    <h2>Sign in to O-Bank</h2>
+    <p class="muted">Your account is protected with password and OTP verification.</p>
+
+    <div class="alert alert-error" data-bind="visible: error"><span data-bind="text: error"></span></div>
+    <div class="alert alert-success" data-bind="visible: notice"><span data-bind="text: notice"></span></div>
+
+    <label>Email address
+      <input type="email" autocomplete="email" placeholder="you@example.com" data-bind="value: email, enable: !otpSent()" />
+    </label>
+    <label>Password
+      <input type="password" autocomplete="current-password" placeholder="Your password" data-bind="value: password, enable: !otpSent()" />
+    </label>
+    <!-- ko ifnot: otpSent -->
+      <p class="login-help-link"><a href="?ojr=forgot-password">Forgot password?</a></p>
+    <!-- /ko -->
+    <label class="check-row">
+      <input type="checkbox" data-bind="checked: loginAsAdmin, enable: !otpSent()" />
+      <span>Sign in as bank administrator</span>
+    </label>
+
+    <!-- ko ifnot: otpSent -->
+      <button class="primary-button" data-bind="click: sendOtp, disable: busy">
+        <span data-bind="text: busy() ? 'Sending OTP…' : 'Continue with OTP'"></span>
+      </button>
+    <!-- /ko -->
+    <!-- ko if: otpSent -->
+      <label>Six-digit OTP
+        <input inputmode="numeric" maxlength="6" placeholder="000000" data-bind="value: otp" />
+      </label>
+      <button class="primary-button" data-bind="click: signIn, disable: busy">
+        <span data-bind="text: busy() ? 'Signing in…' : 'Secure sign in'"></span>
+      </button>
+      <button class="secondary-button otp-resend-button" data-bind="click: resendOtp, disable: busy">Resend OTP</button>
+    <!-- /ko -->
+    <p class="form-note">New to online banking? <a href="?ojr=register">Register and activate your account</a>. Your bank must have already created your customer account.</p>
+  </main>
+</section>

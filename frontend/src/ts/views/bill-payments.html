@@ -1,0 +1,24 @@
+<section class="page-shell bill-payments-page">
+  <div class="page-heading"><div><p class="eyebrow">BILL PAYMENTS</p><h1>Pay a bill securely.</h1><p class="muted">Choose a biller, enter its consumer number, and confirm the payment with an OTP.</p></div></div>
+  <div class="alert alert-error" data-bind="visible: error"><span data-bind="text: error"></span></div>
+  <div class="alert alert-success" data-bind="visible: success"><span data-bind="text: success"></span></div>
+  <div class="loading-block" data-bind="visible: loading">Loading bill-payment options…</div>
+  <section class="content-card bill-payment-card" data-bind="visible: !loading()">
+    <p class="eyebrow">PAY A BILL</p><h2>Payment details</h2>
+    <div class="bill-payment-form-grid">
+      <label>Pay from<select data-bind="options: paymentSources, optionsText: function(source) { return source.label; }, optionsValue: 'key', value: selectedPaymentSourceKey, optionsCaption: 'Choose an account or credit card'"></select></label>
+      <label>Biller<select data-bind="options: billers, optionsText: function(biller) { return biller.billerName + ' · ' + biller.billerCategory; }, optionsValue: 'id', value: selectedBillerId, optionsCaption: 'Choose a biller'"></select></label>
+      <label><span data-bind="text: selectedBiller() ? selectedBiller().consumerNumberLabel : 'Consumer number'"></span><input type="text" maxlength="100" data-bind="value: consumerReference" /></label>
+      <label>Amount<input type="number" min="1" step="0.01" inputmode="decimal" data-bind="value: amount" /></label>
+    </div>
+    <p class="balance-check" data-bind="visible: selectedPaymentSource, text: selectedPaymentSource() ? selectedPaymentSource().currency + &quot; &quot; + Number(selectedPaymentSource().availableAmount).toLocaleString(&quot;en-IN&quot;, { minimumFractionDigits: 2 }) : &quot;&quot;"></p>
+    <button class="primary-button" type="button" data-bind="click: initiate, disable: submitting">Send payment OTP</button>
+    <div class="payment-confirmation" data-bind="visible: paymentOrder">
+      <p class="eyebrow">CONFIRM PAYMENT</p><p class="muted" data-bind="text: paymentOrder() ? 'Reference: ' + paymentOrder().referenceNumber : ''"></p>
+      <label>Six-digit OTP<input type="text" inputmode="numeric" maxlength="6" autocomplete="one-time-code" data-bind="value: otp" /></label>
+      <button class="secondary-button" type="button" data-bind="click: confirm, disable: submitting">Confirm bill payment</button>
+    </div>
+    <p class="empty-state" data-bind="visible: paymentSources().length === 0">No active account or credit card is available for bill payments.</p>
+    <p class="empty-state" data-bind="visible: billers().length === 0">No active billers are available right now.</p>
+  </section>
+</section>

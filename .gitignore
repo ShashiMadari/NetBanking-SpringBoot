@@ -1,0 +1,24 @@
+# Local secrets and credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.jks
+*.p12
+# Generated files
+**/target/
+**/node_modules/
+**/.venv/
+**/web/
+**/staged-themes/
+**/theme-backups/
+**/playwright-report/
+**/test-results/
+*.class
+*.jar
+*.log
+.idea/
+.vscode/
+Thumbs.db
+.DS_Store

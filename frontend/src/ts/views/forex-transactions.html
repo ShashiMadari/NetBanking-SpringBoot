@@ -1,0 +1,40 @@
+<section class="page-shell fx-page">
+  <header class="fx-heading">
+    <div><p class="fx-eyebrow">FOREX TRANSACTIONS</p><h1>Track every currency movement.</h1><p>Filter the complete backend ledger, then create a dated PDF or email statement.</p></div>
+    <a class="fx-button fx-secondary" href="?ojr=forex">Back to Forex</a>
+  </header>
+  <div class="fx-alert fx-error" data-bind="visible: historyError, text: historyError"></div>
+  <div class="fx-alert fx-notice" data-bind="visible: statementNotice, text: statementNotice"></div>
+  <section class="fx-card fx-history">
+    <div class="fx-section-heading"><div><p class="fx-eyebrow">TRANSACTION LEDGER</p><h2>Search activity</h2></div><button class="fx-button fx-secondary" data-bind="click: clearTransactionFilters, disable: transactionLoading">Clear filters</button></div>
+    <div class="fx-history-filters fx-history-filters-wide">
+      <label>Currency<select data-bind="options: rates, optionsText: &quot;currencyCode&quot;, optionsValue: &quot;currencyCode&quot;, optionsCaption: &quot;All currencies&quot;, value: transactionCurrency"></select></label>
+      <label>Type<select data-bind="value: transactionType"><option value="">All types</option><option value="CONVERSION_BUY">Conversion buy</option><option value="CONVERSION_SELL">Conversion sell</option><option value="OUTWARD_REMITTANCE">Outward remittance</option><option value="INWARD_REMITTANCE">Inward remittance</option><option value="CARD_LOAD">Card load</option><option value="CARD_SPEND">Card spend</option></select></label>
+      <label>Status<select data-bind="value: transactionStatus"><option value="">All statuses</option><option value="SUCCESS">Success</option><option value="PENDING">Pending</option><option value="FAILED">Failed</option><option value="REJECTED">Rejected</option></select></label>
+      <label>From<input type="date" data-bind="value: transactionFrom"></label>
+      <label>To<input type="date" data-bind="value: transactionTo"></label>
+      <button class="fx-button" data-bind="click: applyTransactionFilters, disable: transactionLoading">Apply filters</button>
+    </div>
+    <p class="fx-muted" data-bind="visible: transactionLoading">Loading matching Forex transactions…</p>
+    <div class="fx-table-wrap" data-bind="visible: transactions().length"><table class="fx-table"><thead><tr><th>Date</th><th>Activity</th><th>Paid</th><th>Received</th><th>INR equivalent</th><th>Reference</th><th>Status</th></tr></thead><tbody data-bind="foreach: transactions"><tr><td data-bind="text: $parent.dateLabel(createdAt)"></td><td><strong data-bind="text: $parent.label(transactionType)"></strong><small data-bind="text: $parent.label(paymentMethod)"></small></td><td data-bind="text: $parent.money(fromAmount, fromCurrency)"></td><td data-bind="text: $parent.money(receiveAmount, toCurrency)"></td><td data-bind="text: inrEquivalent == null ? &quot;—&quot; : $parent.money(inrEquivalent, &quot;INR&quot;)"></td><td class="fx-reference" data-bind="text: referenceNumber"></td><td><span class="fx-status" data-bind="text: $parent.label(status), css: $parent.statusClass(status)"></span></td></tr></tbody></table></div>
+    <p class="fx-empty" data-bind="visible: !transactionLoading() && !transactions().length">No transactions match these filters.</p>
+    <p class="fx-muted">The backend returns internal transaction states only. External SWIFT intermediary-bank tracking and MT103 advice are not available from the current API.</p>
+  </section>
+  <section class="fx-card fx-history">
+    <div class="fx-section-heading"><div><p class="fx-eyebrow">STATEMENTS</p><h2>Download or email a dated statement</h2></div><div class="fx-actions"><button class="fx-button fx-secondary" data-bind="click: downloadStatement, enable: canExport">Download PDF</button><button class="fx-button fx-secondary" data-bind="click: emailStatement, enable: canExport() && statement().totalTransactions <= 100">Email PDF</button></div></div>
+    <div class="fx-history-filters">
+      <label>Period<select data-bind="options: periods, optionsText: &quot;label&quot;, optionsValue: &quot;value&quot;, value: period"></select></label>
+      <label data-bind="visible: period() === &quot;CUSTOM&quot;">From<input type="date" data-bind="value: fromDate"></label>
+      <label data-bind="visible: period() === &quot;CUSTOM&quot;">To<input type="date" data-bind="value: toDate"></label>
+      <label>Rows<select data-bind="value: pageSize"><option value="10">10</option><option value="25">25</option><option value="50">50</option><option value="100">100</option></select></label>
+      <button class="fx-button" data-bind="click: applyHistory, disable: historyLoading() || statementBusy()">Create statement</button>
+    </div>
+    <p class="fx-muted" data-bind="visible: filtersChanged() && statement()">Statement settings changed. Select Create statement to update it.</p>
+    <p class="fx-muted" data-bind="visible: historyLoading">Preparing statement…</p>
+    <div data-bind="with: statement">
+      <p class="fx-muted" data-bind="text: $parent.dateLabel(statementFrom) + &quot; – &quot; + $parent.dateLabel(statementTo)"></p>
+      <div class="fx-table-wrap" data-bind="visible: transactions.length"><table class="fx-table"><thead><tr><th>Date</th><th>Activity</th><th>Paid</th><th>Received</th><th>Reference</th><th>Status</th></tr></thead><tbody data-bind="foreach: transactions"><tr><td data-bind="text: $parents[1].dateLabel(createdAt)"></td><td data-bind="text: $parents[1].label(transactionType)"></td><td data-bind="text: $parents[1].money(fromAmount, fromCurrency)"></td><td data-bind="text: $parents[1].money(receiveAmount, toCurrency)"></td><td class="fx-reference" data-bind="text: referenceNumber"></td><td><span class="fx-status" data-bind="text: $parents[1].label(status), css: $parents[1].statusClass(status)"></span></td></tr></tbody></table></div>
+    </div>
+    <div class="fx-pagination"><span data-bind="text: pageLabel"></span><div class="fx-actions"><button class="fx-button fx-secondary" data-bind="click: previousPage, enable: canPrevious">Previous</button><button class="fx-button fx-secondary" data-bind="click: nextPage, enable: canNext">Next</button></div></div>
+  </section>
+</section>

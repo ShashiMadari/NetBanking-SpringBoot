@@ -1,0 +1,27 @@
+<section class="page-shell admin-page admin-detail-page">
+  <div class="page-heading admin-heading">
+    <div><p class="eyebrow">BANK ADMINISTRATION</p><h1>Compliance review</h1></div>
+    <div class="admin-heading-actions">
+      <div class="admin-navigation" data-bind="event: { keydown: adminMenuKeydown }">
+        <button type="button" id="admin-navigation-toggle" class="admin-navigation-toggle" aria-label="Admin sections" aria-controls="admin-navigation-list" aria-expanded="false" data-bind="click: toggleAdminMenu, attr: { 'aria-expanded': adminMenuOpen() ? 'true' : 'false' }"><span aria-hidden="true">⋮</span></button>
+        <nav id="admin-navigation-list" class="admin-navigation-list" aria-label="Admin sections" style="display:none" data-bind="visible: adminMenuOpen">
+          <div data-bind="foreach: adminSections">
+            <a data-bind="text: label, attr: { href: $parent.adminSectionLink(id), 'aria-current': $parent.selectedAdminSection() === id ? 'page' : null }"></a>
+          </div>
+        </nav>
+      </div>
+      <a class="secondary-button" href="?ojr=admin-forex">Back to Forex operations</a>
+    </div>
+  </div>
+  <div class="alert alert-error" data-bind="visible: error"><span data-bind="text: error"></span></div>
+  <div class="alert alert-success" data-bind="visible: notice"><span data-bind="text: notice"></span></div>
+  <section class="content-card admin-section">
+    <div class="card-title-row">
+      <p class="eyebrow">FOREX OPERATIONS</p>
+      <button type="button" class="secondary-button" data-bind="click: loadComplianceFlags, disable: forexBusy">Refresh</button>
+    </div>
+    <div class="card-title-row"><div><p class="eyebrow">COMPLIANCE FLAGS</p><h3>High-value transaction review</h3></div><div><select data-bind="value: complianceStatus"><option value="OPEN">Open</option><option value="REVIEWED">Reviewed</option><option value="CLEARED">Cleared</option></select><button class="secondary-button" data-bind="click: loadComplianceFlags">Apply</button></div></div>
+    <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Transaction</th><th>Rule</th><th>Reason</th><th>Status</th><th>Created</th><th>Controls</th></tr></thead><tbody data-bind="foreach: complianceFlags"><tr><td data-bind="text: forexTransactionId"></td><td data-bind="text: ruleCode"></td><td data-bind="text: reason"></td><td data-bind="text: status"></td><td data-bind="text: $parent.formatDate(createdAt)"></td><td class="admin-actions"><button class="table-action" data-bind="visible: status === &quot;OPEN&quot;, click: () => $parent.reviewCompliance($data, &quot;REVIEWED&quot;), disable: $parent.forexBusy">Review</button><button class="table-action" data-bind="visible: status !== &quot;CLEARED&quot;, click: () => $parent.reviewCompliance($data, &quot;CLEARED&quot;), disable: $parent.forexBusy">Clear</button></td></tr></tbody></table></div>
+    <p class="empty-state" data-bind="visible: !complianceFlags().length">No compliance flags match this status.</p>
+  </section>
+</section>

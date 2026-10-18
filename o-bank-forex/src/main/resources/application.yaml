@@ -1,0 +1,73 @@
+server:
+  port: 8447
+  error:
+    include-message: always
+
+spring:
+  application:
+    name: o-bank-forex
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+
+  datasource:
+    url: jdbc:oracle:thin:@//127.0.0.1:1522/FREEPDB1
+    username: o_bank_forex
+    password: ${FOREX_DB_PASSWORD}
+    driver-class-name: oracle.jdbc.OracleDriver
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      "[mail.smtp.auth]": true
+      "[mail.smtp.starttls.enable]": true
+      "[mail.smtp.connectiontimeout]": 15000
+      "[mail.smtp.timeout]": 30000
+      "[mail.smtp.writetimeout]": 30000
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+app:
+  security:
+    # Must be the same Base64 JWT secret used by Identity, Banking, and Credit.
+    jwt-secret: ${JWT_SECRET}
+    jwt-expiration-seconds: 3600
+
+  mail:
+    from: ${MAIL_USERNAME}
+
+  identity:
+    base-url: ${IDENTITY_BASE_URL:http://localhost:8444}
+
+  banking:
+    base-url: ${BANKING_BASE_URL:http://localhost:8445}
+
+  internal:
+    identity-api-key: ${IDENTITY_API_KEY}
+    banking-api-key: ${BANKING_API_KEY}
+
+  forex:
+    quote-validity-seconds: 60
+    compliance-threshold-inr: 250000
+    statement-max-days: 366
+    statement-max-rows: 500
+
+    rate-jitter-enabled: true
+    rate-jitter-ms: 60000
+    rate-min-step-percent: 0.025
+    rate-max-step-percent: 0.040
+    rate-max-deviation-percent: 1.50
+
+logging:
+  level:
+    org.springframework.security: INFO

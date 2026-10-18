@@ -1,0 +1,198 @@
+name: o-bank
+
+x-app-environment: &app-environment
+  EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+  EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+  SPRING_MAIL_USERNAME: ${MAIL_USERNAME:?required}
+  SPRING_DATASOURCE_URL: ${ORACLE_JDBC_URL:-jdbc:oracle:thin:@//host.containers.internal:1522/FREEPDB1}
+  SPRING_KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  IDENTITY_BASE_URL: http://identity:8444
+  BANKING_BASE_URL: http://banking:8445
+  APP_BANKING_BASE_URL: http://banking:8445
+
+services:
+  kafka:
+    image: docker.io/apache/kafka:3.9.1
+    restart: unless-stopped
+    environment:
+      KAFKA_NODE_ID: "1"
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: "1"
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: "1"
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+      CLUSTER_ID: 4L6g3nShT-eMCtK--X86sw
+    volumes:
+      - kafka-data:/tmp/kraft-combined-logs
+    healthcheck:
+      test: ["CMD", "/opt/kafka/bin/kafka-broker-api-versions.sh", "--bootstrap-server", "kafka:9092"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 30s
+
+  eureka:
+    image: ${IMAGE_REGISTRY:-localhost}/o-bank-eureka:${IMAGE_TAG:-dev}
+    build:
+      context: .
+      dockerfile: Containerfile.service
+      args:
+        SERVICE: eureka-server
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${EUREKA_PORT:-8761}:8761"
+
+  identity:
+    image: ${IMAGE_REGISTRY:-localhost}/o-bank-identity:${IMAGE_TAG:-dev}
+    build:
+      context: .
+      dockerfile: Containerfile.service
+      args:
+        SERVICE: o-back-identity
+    restart: unless-stopped
+    depends_on:
+      kafka:
+        condition: service_healthy
+      eureka:
+        condition: service_started
+    environment:
+      <<: *app-environment
+      SPRING_DATASOURCE_PASSWORD: ${IDENTITY_DB_PASSWORD:?required}
+      SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD:?required}
+      APP_SECURITY_JWT_SECRET: ${JWT_SECRET:?required}
+      APP_INTERNAL_API_KEY: ${IDENTITY_API_KEY:?required}
+
+  banking:
+    image: ${IMAGE_REGISTRY:-localhost}/o-bank-banking:${IMAGE_TAG:-dev}
+    build:
+      context: .
+      dockerfile: Containerfile.service
+      args:
+        SERVICE: o-back-banking
+    restart: unless-stopped
+    depends_on:
+      kafka:
+        condition: service_healthy
+      eureka:
+        condition: service_started
+    environment:
+      <<: *app-environment
+      SPRING_DATASOURCE_PASSWORD: ${BANKING_DB_PASSWORD:?required}
+      SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD:?required}
+      APP_SECURITY_JWT_SECRET: ${JWT_SECRET:?required}
+      APP_INTERNAL_IDENTITY_API_KEY: ${IDENTITY_API_KEY:?required}
+      APP_INTERNAL_BANKING_API_KEY: ${BANKING_API_KEY:?required}
+
+  credit:
+    image: ${IMAGE_REGISTRY:-localhost}/o-bank-credit:${IMAGE_TAG:-dev}
+    build:
+      context: .
+      dockerfile: Containerfile.service
+      args:
+        SERVICE: o-bank-credit
+    restart: unless-stopped
+    depends_on:
+      eureka:
+        condition: service_started
+      banking:
+        condition: service_started
+    environment:
+      <<: *app-environment
+      SPRING_DATASOURCE_PASSWORD: ${CREDIT_DB_PASSWORD:?required}
+      SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD:?required}
+      APP_SECURITY_JWT_SECRET: ${JWT_SECRET:?required}
+      APP_INTERNAL_IDENTITY_API_KEY: ${IDENTITY_API_KEY:?required}
+      APP_INTERNAL_BANKING_API_KEY: ${BANKING_API_KEY:?required}
+
+  forex:
+    image: ${IMAGE_REGISTRY:-localhost}/o-bank-forex:${IMAGE_TAG:-dev}
+    build:
+      context: .
+      dockerfile: Containerfile.service
+      args:
+        SERVICE: o-bank-forex
+    restart: unless-stopped
+    depends_on:
+      kafka:
+        condition: service_healthy
+      eureka:
+        condition: service_started
+    environment:
+      <<: *app-environment
+      SPRING_DATASOURCE_PASSWORD: ${FOREX_DB_PASSWORD:?required}
+      SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD:?required}
+      APP_SECURITY_JWT_SECRET: ${JWT_SECRET:?required}
+      APP_INTERNAL_IDENTITY_API_KEY: ${IDENTITY_API_KEY:?required}
+      APP_INTERNAL_BANKING_API_KEY: ${BANKING_API_KEY:?required}
+
+  investment:
+    image: ${IMAGE_REGISTRY:-localhost}/o-bank-investment:${IMAGE_TAG:-dev}
+    build:
+      context: .
+      dockerfile: Containerfile.service
+      args:
+        SERVICE: o-bank-investment
+    restart: unless-stopped
+    depends_on:
+      kafka:
+        condition: service_healthy
+      eureka:
+        condition: service_started
+    environment:
+      <<: *app-environment
+      EUREKA_INSTANCE_HOSTNAME: investment
+      SPRING_DATASOURCE_PASSWORD: ${INVESTMENT_DB_PASSWORD:?required}
+      SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD:?required}
+      APP_SECURITY_JWT_SECRET: ${JWT_SECRET:?required}
+      APP_INTERNAL_IDENTITY_API_KEY: ${IDENTITY_API_KEY:?required}
+      APP_INTERNAL_BANKING_API_KEY: ${BANKING_API_KEY:?required}
+      APP_INTERNAL_SERVICE_KEY: ${INVESTMENT_SERVICE_KEY:?required}
+
+  gateway:
+    image: ${IMAGE_REGISTRY:-localhost}/o-bank-gateway:${IMAGE_TAG:-dev}
+    build:
+      context: .
+      dockerfile: Containerfile.service
+      args:
+        SERVICE: o-back-gateway
+    restart: unless-stopped
+    depends_on:
+      eureka:
+        condition: service_started
+      identity:
+        condition: service_started
+      banking:
+        condition: service_started
+      credit:
+        condition: service_started
+      forex:
+        condition: service_started
+      investment:
+        condition: service_started
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka:8761/eureka/
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+    ports:
+      - "127.0.0.1:${GATEWAY_PORT:-8443}:8443"
+
+  frontend:
+    image: ${IMAGE_REGISTRY:-localhost}/o-bank-frontend:${IMAGE_TAG:-dev}
+    build:
+      context: "./frontend"
+      dockerfile: Containerfile
+    restart: unless-stopped
+    depends_on:
+      gateway:
+        condition: service_started
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-8000}:80"
+
+volumes:
+  kafka-data:

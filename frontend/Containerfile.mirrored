@@ -1,0 +1,11 @@
+FROM registry.access.redhat.com/ubi9/nginx-124:latest
+USER 0
+COPY web/ /opt/app-root/src/
+COPY nginx.mirrored.conf /etc/nginx/nginx.conf
+# The container's browser requests use the same-origin /api proxy.
+RUN sed -i 's#http://localhost:8443##g' /opt/app-root/src/js/services/api.js \
+    && chown -R 1001:0 /opt/app-root/src \
+    && chmod -R g+rwX /opt/app-root/src
+USER 1001
+EXPOSE 8001
+ENTRYPOINT ["/usr/sbin/nginx", "-g", "daemon off;"]

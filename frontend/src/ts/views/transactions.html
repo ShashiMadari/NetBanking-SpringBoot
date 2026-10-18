@@ -1,0 +1,27 @@
+<section class="page-shell transactions-page">
+  <div class="page-heading"><div><p class="eyebrow">ACCOUNT ACTIVITY</p><h1>Your transaction history.</h1><p class="muted">Review completed and pending activity for your accounts.</p></div></div>
+  <div class="alert alert-error" data-bind="visible: error"><span data-bind="text: error"></span></div>
+  <div class="loading-block" data-bind="visible: loading">Loading transaction history…</div>
+  <section class="content-card" data-bind="visible: !loading()">
+    <div class="transaction-header"><div><p class="eyebrow">TRANSACTIONS</p><h2>Account history</h2></div>
+      <label class="account-picker">Account<select data-bind="options: accounts, optionsText: function(account) { return account.accountType + ' · •••• ' + account.accountNumber.slice(-4); }, optionsValue: 'accountId', value: selectedAccountId, event: { change: accountChanged }"></select></label><div class="transaction-date-filter"><label>From<input type="date" data-bind="value: fromDate" /></label><label>To<input type="date" data-bind="value: toDate" /></label><button type="button" class="secondary-button" data-bind="click: applyDateFilter">Apply dates</button><button type="button" class="text-button" data-bind="click: clearDateFilter, disable: !fromDate() && !toDate()">Clear</button></div>
+    </div>
+    <div class="transaction-account-summary" data-bind="visible: selectedAccount">
+      <span data-bind="text: selectedAccount() ? selectedAccount().accountType + ' · •••• ' + selectedAccount().accountNumber.slice(-4) : ''"></span>
+      <strong data-bind="text: selectedAccount() ? selectedAccount().currency + ' ' + Number(selectedAccount().availableBalance).toLocaleString('en-IN', { minimumFractionDigits: 2 }) : ''"></strong>
+    </div>
+    <section class="monthly-statement-actions"><div><p class="eyebrow">MONTHLY STATEMENT</p><p class="muted">Download or email the selected account statement for one month.</p></div><label>Statement month<input type="month" data-bind="value: statementMonth" /></label><button type="button" class="secondary-button" data-bind="click: downloadMonthlyStatement, disable: statementBusy"><span data-bind="text: statementBusy() ? &quot;Preparing…&quot; : &quot;Download PDF&quot;"></span></button><button type="button" class="secondary-button" data-bind="click: emailMonthlyStatement, disable: statementBusy"><span data-bind="text: statementBusy() ? &quot;Sending…&quot; : &quot;Email statement&quot;"></span></button></section>
+    <div class="alert alert-success" data-bind="visible: statementNotice"><span data-bind="text: statementNotice"></span></div>
+    <div class="loading-block" data-bind="visible: loadingTransactions">Loading transactions…</div>
+    <div class="transaction-table-wrap" data-bind="visible: !loadingTransactions() && transactions().length">
+      <table class="transaction-table">
+        <thead><tr><th>Date</th><th>Type</th><th>Reference</th><th>Amount</th><th>Status</th></tr></thead>
+        <tbody data-bind="foreach: transactions">
+          <tr><td data-bind="text: new Date(transactionDate).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })"></td><td data-bind="text: transactionType"></td><td data-bind="text: referenceNumber"></td><td data-bind="css: entrySide.toLowerCase(), text: (entrySide === 'CREDIT' ? '+ ' : '- ') + Number(amount).toLocaleString('en-IN', { minimumFractionDigits: 2 })"></td><td><span class="status-pill" data-bind="text: status, css: status.toLowerCase()"></span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="empty-state" data-bind="visible: !loadingTransactions() && accounts().length > 0 && transactions().length === 0">No transactions are available for this account.</p>
+    <p class="empty-state" data-bind="visible: !loadingTransactions() && accounts().length === 0">No active account was found for this customer.</p>
+  </section>
+</section>

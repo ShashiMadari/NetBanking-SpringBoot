@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://inetbank.com/soap/credit-repayment"
+    xmlns:tns="http://inetbank.com/soap/credit-repayment"
+    elementFormDefault="qualified">
+
+    <xs:element name="CreditRepaymentDebitRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="userId" type="xs:long"/>
+                <xs:element name="sourceAccountId" type="xs:long"/>
+                <xs:element name="amount" type="xs:decimal"/>
+                <xs:element name="referenceNumber" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="CreditRepaymentDebitResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="transactionId" type="xs:long"/>
+                <xs:element name="referenceNumber" type="xs:string"/>
+                <xs:element name="amount" type="xs:decimal"/>
+                <xs:element name="alreadyProcessed" type="xs:boolean"/>
+                <xs:element name="message" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="InternalApiKey">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="apiKey" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+</xs:schema>

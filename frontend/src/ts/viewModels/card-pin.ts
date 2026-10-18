@@ -1,0 +1,1 @@
+import CardServicesViewModel = require("./card-services"); export = CardServicesViewModel;

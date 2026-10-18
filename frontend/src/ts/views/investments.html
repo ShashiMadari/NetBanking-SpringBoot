@@ -1,0 +1,136 @@
+<section class="page-shell investments-page">
+  <div class="page-heading"><div><p class="eyebrow">INVESTMENTS</p><h1>Grow your money with confidence.</h1><p class="muted">Start with a Demat account for Stocks and ETFs, then use your Trading Wallet for market orders.</p></div></div>
+  <div class="alert alert-error" data-bind="visible: error"><span data-bind="text: error"></span></div>
+  <div class="alert alert-success" data-bind="visible: notice"><span data-bind="text: notice"></span></div>
+  <div class="loading-block" data-bind="visible: loading">Loading investment services…</div>
+
+  <section class="content-card demat-panel" data-bind="visible: !loading() && !dematActive()">
+    <p class="eyebrow">STEP 1 · DEMAT ACCOUNT</p><h2>Open your Demat account</h2>
+    <p class="muted">A verified Demat account is required only for Stocks and ETFs. Your OTP is sent to your registered email.</p>
+    <div class="form-row" data-bind="visible: profile().panStatus !== 'VERIFIED'"><label>PAN number<input maxlength="10" placeholder="ABCDE1234F" data-bind="value: panNumber" /></label><button type="button" class="primary-button" data-bind="click: savePan">Verify PAN</button></div>
+    <div class="form-row" data-bind="visible: profile().panStatus === 'VERIFIED'"><label>Link Demat to account<select data-bind="options: accounts, optionsText: accountLabel, optionsValue: 'accountId', value: dematAccountId"></select></label><button type="button" class="primary-button" data-bind="click: sendDematOtp">Send Demat OTP</button></div>
+    <div class="otp-row" data-bind="visible: dematOtpSent"><label>Six-digit Demat OTP<input inputmode="numeric" maxlength="6" autocomplete="one-time-code" data-bind="value: dematOtp" /></label><button type="button" class="secondary-button" data-bind="click: verifyDematOtp">Verify OTP</button></div>
+  </section>
+
+  <section class="content-card wallet-panel" data-bind="visible: !loading() && dematActive()">
+    <div class="demat-account-status">
+      <div>
+        <p class="eyebrow">DEMAT ACCOUNT</p>
+        <h2>Active</h2>
+        <p class="muted" data-bind="text: profile().dematNumber ? 'Demat number · ••••• ' + profile().dematNumber.slice(-5) : 'Demat number is being prepared.'"></p>
+      </div>
+      <span class="status-badge active">ACTIVE</span>
+    </div>
+    <div><p class="eyebrow">TRADING WALLET</p><h2 data-bind="text: formatInr(wallet().balance)"></h2><p class="muted">Fund your wallet from the account linked to your Demat profile before placing a Stock or ETF order.</p></div>
+    <div class="wallet-actions">
+      <button type="button" class="wallet-add-funds-trigger" data-bind="click: () => openWalletTransfer(&quot;FUND&quot;)" aria-label="Add funds to Trading Wallet"><span class="wallet-add-funds-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 7h13a3 3 0 0 1 3 3v7H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2Z" /><path d="M15 12h5M17.5 9.5v5" /><path d="M2 10h18" /></svg></span><span>Add funds</span></button>
+      <button type="button" class="wallet-add-funds-trigger" data-bind="click: () => openWalletTransfer(&quot;WITHDRAW&quot;)" aria-label="Withdraw from Trading Wallet"><span class="wallet-add-funds-icon wallet-withdraw-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 7h16v10H4z" /><path d="M12 4v10M8 10l4 4 4-4" /></svg></span><span>Withdraw</span></button>
+    </div>
+    <div class="wallet-funding-form" data-bind="visible: showWalletFunding"><p class="eyebrow" data-bind="text: walletTransferTitle"></p><div class="form-row"><label>Linked account<select data-bind="options: accounts, optionsText: accountLabel, optionsValue: 'accountId', value: walletAccountId"></select></label><label>Amount (INR)<input type="number" min="1" step="1" data-bind="value: walletAmount" /></label><button type="button" class="primary-button" data-bind="click: sendWalletOtp, text: walletTransferButton"></button></div><div class="otp-row" data-bind="visible: walletTransactionId"><label>Six-digit wallet OTP<input inputmode="numeric" maxlength="6" autocomplete="one-time-code" data-bind="value: walletOtp" /></label><button type="button" class="secondary-button" data-bind="click: confirmWalletFunding, disable: walletSubmitted"><span data-bind="text: walletSubmitted() ? 'Confirmation submitted' : 'Confirm transfer'"></span></button></div></div>
+    <div class="wallet-history">
+      <button type="button" class="primary-button wallet-activity-toggle" aria-controls="wallet-activity-panel" aria-expanded="false" data-bind="click: toggleWalletActivity, attr: { 'aria-expanded': showWalletActivity() ? 'true' : 'false' }">Wallet activity</button>
+      <!-- ko if: showWalletActivity -->
+      <div id="wallet-activity-panel">
+        <!-- ko if: wallet().transactions.length -->
+        <div class="investment-table-wrap"><table class="investment-table"><thead><tr><th>Type</th><th>Amount</th><th>Status</th><th>Reference</th></tr></thead><tbody data-bind="foreach: wallet().transactions"><tr><td data-bind="text: transactionType"></td><td data-bind="text: $parent.formatInr(amount)"></td><td><span class="status-badge" data-bind="text: status"></span></td><td data-bind="text: referenceNumber"></td></tr></tbody></table></div>
+        <!-- /ko -->
+        <!-- ko ifnot: wallet().transactions.length -->
+        <p class="muted">No wallet activity yet.</p>
+        <!-- /ko -->
+      </div>
+      <!-- /ko -->
+    </div>
+  </section>
+
+  <section class="investment-categories" aria-labelledby="investment-options-heading" data-bind="visible: !loading()">
+    <h2 id="investment-options-heading" class="investment-options-heading">Investment options</h2>
+    <a class="investment-category" title="Stocks and ETFs" aria-label="Stocks and ETFs" href="?ojr=stocks"><span class="investment-category-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 19h16M6 16l4-5 3 3 5-7M14 7h4v4" /></svg></span><span class="investment-category-copy"><strong>Stocks &amp; ETFs</strong><small>Buy market-linked investments through your Demat account.</small></span></a>
+    <a class="investment-category" title="Mutual funds" aria-label="Mutual funds" href="?ojr=mutual-funds"><span class="investment-category-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="8" /><path d="M8 14l3-3 2 2 3-4M8 7h.01M16 17h.01" /></svg></span><span class="investment-category-copy"><strong>Mutual funds</strong><small>Choose a lump sum investment or start a SIP.</small></span></a>
+    <a class="investment-category" title="Fixed deposits" aria-label="Fixed deposits" href="?ojr=fixed-deposits"><span class="investment-category-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 9h16M6 9v10m4-10v10m4-10v10m4-10v10M4 19h16M12 4l8 5H4l8-5Z" /><path d="M9 14h6" /></svg></span><span class="investment-category-copy"><strong>Fixed deposits</strong><small>Lock in a fixed return for a chosen period.</small></span></a>
+    <a class="investment-category" title="Recurring deposits" aria-label="Recurring deposits" href="?ojr=recurring-deposits"><span class="investment-category-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M19 8a8 8 0 1 0 1 7M19 4v4h-4M5 20v-4h4" /><path d="M12 8v4l3 2" /></svg></span><span class="investment-category-copy"><strong>Recurring deposits</strong><small>Build savings with a regular monthly deposit.</small></span></a>
+    <a class="investment-category" title="Public Provident Fund" aria-label="Public Provident Fund" href="?ojr=ppf"><span class="investment-category-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M12 3 5 6v5c0 4.5 3 7.8 7 10 4-2.2 7-5.5 7-10V6l-7-3Z" /><path d="M9 12h6M12 9v6" /></svg></span><span class="investment-category-copy"><strong>PPF</strong><small>Plan long-term savings with government-backed PPF.</small></span></a>
+  </section>
+
+  <section class="investment-categories investment-management-cards" aria-labelledby="manage-investments-heading" data-bind="visible: !loading()">
+    <h2 id="manage-investments-heading" class="investment-options-heading">Manage investments</h2>
+    <a class="investment-category" href="?ojr=investment-portfolio">
+      <span class="investment-category-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M4 20h16M6 16v-4M12 16V8M18 16V4" /></svg></span>
+      <span class="investment-category-copy"><strong>Portfolio &amp; redemption</strong></span>
+    </a>
+    <a class="investment-category" href="?ojr=investment-schedules">
+      <span class="investment-category-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M7 3v4M17 3v4M3 10h18M8 14h3M8 17h7" /></svg></span>
+      <span class="investment-category-copy"><strong>Recurring schedules</strong></span>
+    </a>
+    <a class="investment-category" href="?ojr=investment-statements">
+      <span class="investment-category-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M6 3h8l4 4v14H6zM14 3v5h4M9 12h6M9 16h6" /></svg></span>
+      <span class="investment-category-copy"><strong>Statements</strong></span>
+    </a>
+  </section>
+
+  <section class="content-card portfolio-allocation-card"
+           data-bind="visible: !loading() && holdings().length">
+
+    <div class="allocation-heading">
+      <div>
+        <p class="eyebrow">PORTFOLIO ALLOCATION</p>
+        <h2>Where your money is invested</h2>
+        <p class="muted">
+          Current value grouped by investment type.
+        </p>
+      </div>
+
+      <div class="allocation-total" data-bind="visible: allocationLoaded">
+        <span>Current portfolio value</span>
+        <strong data-bind="text: formatInr(allocationTotal())"></strong>
+      </div>
+    </div>
+
+    <p class="empty-state" role="status" data-bind="visible: allocationLoaded() && allocationTotal() === 0">No positive current holding values are available to display yet.</p>
+    <p class="empty-state" role="status" data-bind="visible: !allocationLoaded()">Investment allocation is unavailable. Please reload the page to try again.</p>
+    <div class="allocation-content" data-bind="visible: allocationLoaded() && allocationTotal() > 0">
+      <div class="allocation-pie-wrap">
+        <div class="allocation-pie"
+             role="img"
+             aria-label="Investment allocation pie chart"
+             data-bind="style: { background: allocationChartStyle }, attr: { 'aria-label': allocationChartLabel }">
+          <div class="allocation-pie-centre">
+            <span>Portfolio</span>
+            <strong data-bind="text: formatInr(allocationTotal())"></strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="allocation-legend" data-bind="foreach: allocationItems">
+        <div class="allocation-legend-row">
+          <span class="allocation-colour"
+                data-bind="style: { backgroundColor: colour }"></span>
+
+          <div>
+            <strong data-bind="text: label"></strong>
+            <small data-bind="text: $parent.formatInr(value)"></small>
+          </div>
+
+          <span class="allocation-percent"
+                data-bind="text: percentage + '%'"></span>
+        </div>
+      </div>
+    </div>
+    <p class="muted" data-bind="visible: allocationLoaded() && allocationTotal() > 0">Percentages are rounded to one decimal place.</p>
+  </section>
+
+  <section class="content-card product-panel" data-bind="visible: !loading() && category()">
+    <p class="eyebrow">CHOOSE A PRODUCT</p>
+    <div class="investment-product-list" data-bind="foreach: filteredProducts"><button type="button" data-bind="click: () => $parent.chooseProduct($data), css: { selected: $parent.selectedProductId() === id }"><strong data-bind="text: name"></strong><span data-bind="text: productType.replace('_', ' ') + ' · Minimum ' + $parent.formatInr(minimumAmount)"></span></button></div>
+  </section>
+
+  <section class="content-card order-panel" data-bind="visible: selectedProduct">
+    <p class="eyebrow">INVESTMENT ORDER</p><h2 data-bind="text: selectedProduct() ? selectedProduct().name : ''"></h2>
+    <p class="muted" data-bind="visible: stockProduct">Stocks and ETFs require an active Demat account, a funded Trading Wallet, and an OTP for every buy order.</p>
+    <div class="form-row"><label>Source account<select data-bind="options: accounts, optionsText: accountLabel, optionsValue: 'accountId', value: purchaseAccountId"></select></label><label>Amount (INR)<input type="number" min="1" step="1" data-bind="value: investmentAmount" /></label></div>
+    <div class="form-row" data-bind="visible: stockProduct"><label>Exchange<select data-bind="value: exchange"><option value="NSE">NSE</option><option value="BSE">BSE</option></select></label><p class="wallet-order-balance" data-bind="text: 'Trading Wallet: ' + formatInr(wallet().balance)"></p></div>
+    <div class="form-row" data-bind="visible: mutualFund"><label>Investment type<select data-bind="value: investmentMode"><option value="LUMPSUM">Lump sum</option><option value="SIP">Start SIP</option></select></label><label data-bind="visible: isSip">SIP tenure (months)<input type="number" min="1" max="600" step="1" data-bind="value: sipTenureMonths" /></label><label data-bind="visible: isSip">Monthly debit day<select data-bind="value: sipDebitDay, options: sipDebitDays"></select></label></div>
+    <p class="muted" data-bind="visible: isSip">Your first SIP debit will be scheduled for the selected monthly day. You can review or manage it from Recurring schedules.</p>
+    <button type="button" class="primary-button" data-bind="click: submitInvestment, disable: purchase.busy, text: isSip() ? 'Start SIP' : 'Send purchase OTP'"></button>
+    <div class="otp-row" data-bind="visible: purchase.orderId"><label>Six-digit purchase OTP<input inputmode="numeric" maxlength="6" autocomplete="one-time-code" data-bind="value: purchase.otp" /></label><button type="button" class="secondary-button" data-bind="click: authorisePurchase, disable: purchase.busy">Authorise purchase</button></div>
+  </section>
+</section>

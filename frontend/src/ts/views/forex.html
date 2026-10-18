@@ -1,0 +1,59 @@
+<section class="page-shell fx-page fx-home-page">
+  <header class="fx-heading">
+    <div><p class="fx-eyebrow">O-BANK FOREX</p><h1>Your global money hub.</h1><p>See wallet balances, current rates, recent activity, and choose your next Forex action.</p></div>
+    <button class="fx-button fx-secondary" data-bind="click: refreshAll, disable: loading() || converting() || extras.busy()">Refresh Forex</button>
+  </header>
+
+  <div class="fx-alert fx-error" role="alert" data-bind="visible: dataError, text: dataError"></div>
+  <div class="fx-alert fx-error" role="alert" data-bind="visible: error, text: error"></div>
+  <p role="status" data-bind="visible: loading">Updating rates and balances…</p>
+
+  <!-- ko with: extras -->
+  <section class="fx-card fx-journeys">
+    <p class="fx-eyebrow">FOREX SERVICES</p><h2>Choose what you want to do</h2><p class="fx-muted">Use a focused workspace for cards, overseas beneficiaries, international transfers, or your statement history.</p>
+    <div class="dashboard-services fx-service-grid">
+      <a class="dashboard-shortcut service-shortcut fx-service-card" href="?ojr=forex-exchange">
+        <span class="dashboard-shortcut-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M3 7h12M11 3l4 4-4 4M21 17H9M13 13l-4 4 4 4"></path></svg></span>
+        <span class="dashboard-shortcut-copy"><span class="dashboard-shortcut-title">Exchange currency</span><span class="dashboard-shortcut-description">Get a backend rate lock, review the markup, and convert.</span></span>
+      </a>
+      <a class="dashboard-shortcut service-shortcut fx-service-card" href="?ojr=forex-cards">
+        <span class="dashboard-shortcut-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 10h18M7 15h4"></path></svg></span>
+        <span class="dashboard-shortcut-copy"><span class="dashboard-shortcut-title">Forex cards</span><span class="dashboard-shortcut-description">Issue a card, load it, manage its limit, or simulate a purchase.</span></span>
+      </a>
+      <a class="dashboard-shortcut service-shortcut fx-service-card" href="?ojr=forex-beneficiaries">
+        <span class="dashboard-shortcut-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="9" cy="7" r="4"></circle><path d="M2 21v-3a6 6 0 0 1 12 0v3M17 8h5M19.5 5.5v5"></path></svg></span>
+        <span class="dashboard-shortcut-copy"><span class="dashboard-shortcut-title">Beneficiaries</span><span class="dashboard-shortcut-description">Add and review overseas recipients before you send money.</span></span>
+      </a>
+      <a class="dashboard-shortcut service-shortcut fx-service-card" href="?ojr=forex-transfer">
+        <span class="dashboard-shortcut-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="9"></circle><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"></path></svg></span>
+        <span class="dashboard-shortcut-copy"><span class="dashboard-shortcut-title">Send money abroad</span><span class="dashboard-shortcut-description">Select a saved recipient, then enter the amount and purpose.</span></span>
+      </a>
+      <a class="dashboard-shortcut service-shortcut fx-service-card" href="?ojr=forex-transactions">
+        <span class="dashboard-shortcut-icon" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><path d="M6 3h12v18H6zM9 7h6M9 11h6M9 15h4"></path></svg></span>
+        <span class="dashboard-shortcut-copy"><span class="dashboard-shortcut-title">Forex activity</span><span class="dashboard-shortcut-description">Filter transactions, download a PDF, or email a statement.</span></span>
+      </a>
+    </div>
+  </section>
+  <!-- /ko -->
+
+  <div class="fx-layout">
+    <aside class="fx-card">
+      <div class="fx-section-heading"><div><p class="fx-eyebrow">YOUR FOREX WALLETS</p><h2>Balances by currency</h2></div><button class="fx-button fx-secondary" data-bind="click: toggleBalances, text: balancesVisible() ? &quot;Hide balances&quot; : &quot;Show balances&quot;"></button></div>
+      <div class="fx-wallets" data-bind="foreach: wallets">
+      <article class="fx-wallet"><div class="fx-currency" data-bind="text: currencyCode"></div><span class="fx-wallet-label">Available balance</span><strong data-bind="text: $parent.balancesVisible() ? $parent.money(availableBalance, currencyCode) : &quot;••••••&quot;"></strong><small data-bind="text: $parent.balancesVisible() ? &quot;Approx. &quot; + $parent.walletInrValue($data) : &quot;Balance hidden&quot;"></small></article>
+      </div>
+      <p class="fx-muted" data-bind="visible: !loading() && walletLoaded() && !wallets().length">Your first currency purchase will create its Forex wallet.</p>
+      <p class="fx-muted" data-bind="visible: !loading() && !walletLoaded()">Wallet balances are unavailable. Refresh to try again.</p>
+    </aside>
+  </div>
+
+  <section class="fx-card fx-history"><div class="fx-section-heading"><div><p class="fx-eyebrow">RECENT ACTIVITY</p><h2>Latest Forex transactions</h2></div><a class="fx-button fx-secondary" href="?ojr=forex-transactions">View all</a></div><div class="fx-table-wrap" data-bind="visible: recentTransactions().length"><table class="fx-table"><thead><tr><th>Date</th><th>Activity</th><th>Paid</th><th>Received</th><th>Status</th></tr></thead><tbody data-bind="foreach: recentTransactions"><tr><td data-bind="text: $parent.dateLabel(createdAt)"></td><td data-bind="text: $parent.label(transactionType)"></td><td data-bind="text: $parent.money(fromAmount, fromCurrency)"></td><td data-bind="text: $parent.money(receiveAmount, toCurrency)"></td><td><span class="fx-status" data-bind="text: $parent.label(status), css: $parent.statusClass(status)"></span></td></tr></tbody></table></div><p class="fx-empty" data-bind="visible: dashboardLoaded() && !recentTransactions().length">No Forex transactions yet.</p></section>
+
+  <section class="fx-card fx-rates">
+    <p class="fx-eyebrow">REFERENCE EXCHANGE RATES</p><h2>Explore available currencies</h2>
+    <p class="fx-muted">Reference rates are shown before markup. Request a quote for your final conversion rate.</p>
+    <div class="fx-rate-grid" data-bind="foreach: rates">
+      <article class="fx-rate"><h3 data-bind="text: currencyCode"></h3><strong data-bind="text: '1 ' + currencyCode + ' = INR ' + Number(currentRateInr).toLocaleString('en-IN', { maximumFractionDigits: 6 })"></strong><p data-bind="text: 'Markup: ' + $parent.markupLabel(markupBps)"></p><small data-bind="text: 'Source: ' + $parent.sourceLabel(referenceSource)"></small><small data-bind="text: 'Reference date: ' + $parent.dateLabel(referenceAsOf)"></small></article>
+    </div>
+  </section>
+</section>

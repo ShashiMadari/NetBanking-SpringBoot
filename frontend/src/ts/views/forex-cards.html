@@ -1,0 +1,92 @@
+<section class="page-shell fx-page">
+  <header class="fx-heading">
+    <div>
+      <p class="fx-eyebrow">FOREX CARDS</p>
+      <h1>Use your travel money with confidence.</h1>
+      <p>Select a card to load its balance, change controls, or simulate a purchase.</p>
+    </div>
+    <a class="fx-button fx-secondary" href="?ojr=forex">Back to Forex</a>
+  </header>
+
+  <section class="fx-alert" data-bind="visible: extras.uncertain">
+    <strong>Check the result of your previous Forex action</strong>
+    <p data-bind="text: extras.uncertain"></p>
+    <p>The request may have completed even if its response failed. Refresh the cards, wallets, and transaction history before submitting another action.</p>
+    <div class="fx-actions">
+      <button class="fx-button fx-secondary" data-bind="click: extras.reconcile, disable: extras.loading() || extras.busy()">Refresh and check records</button>
+      <button class="fx-button" data-bind="click: extras.acknowledgeReview, disable: !extras.reviewedRecords() || extras.busy()">I checked the result</button>
+    </div>
+  </section>
+  <section class="fx-alert" data-bind="visible: pending">
+    <strong>Conversion request awaiting a result</strong>
+    <p>Resolve the saved conversion request before managing a Forex card.</p>
+    <a class="fx-button fx-secondary" href="?ojr=forex-exchange">Return to Forex Exchange</a>
+  </section>
+  <section class="fx-alert" data-bind="visible: extras.pendingTransfer">
+    <strong>Transfer request awaiting a result</strong>
+    <p>Resolve the saved remittance request before managing a Forex card.</p>
+    <a class="fx-button fx-secondary" href="?ojr=forex-transfer">Return to Outward Remittance</a>
+  </section>
+
+  <section class="fx-card fx-extras">
+    <div class="fx-section-heading">
+      <div><p class="fx-eyebrow">CURRENT FOREX CARDS</p><h2>Your travel cards</h2></div>
+      <button class="fx-button fx-secondary" data-bind="click: extras.refresh, disable: extras.loading() || extras.busy()">Refresh</button>
+    </div>
+    <div class="fx-alert fx-error" data-bind="visible: extras.dataError, text: extras.dataError"></div>
+    <div class="fx-alert fx-error" data-bind="visible: extras.error, text: extras.error"></div>
+    <div class="fx-alert fx-notice" data-bind="visible: extras.notice, text: extras.notice"></div>
+
+    <div class="fx-card-list" data-bind="foreach: extras.cards">
+      <button type="button" class="fx-travel-card" data-bind="click: () => $parent.extras.selectCard($data), css: { 'fx-travel-card-selected': String($parent.extras.cardId()) === String(forexCardId) }, attr: { 'aria-pressed': String($parent.extras.cardId()) === String(forexCardId) }">
+        <div class="fx-card-head">
+          <span class="fx-card-brand">O-BANK FOREX</span>
+          <span class="fx-card-status" data-bind="text: status"></span>
+        </div>
+        <span class="fx-card-chip" aria-hidden="true"></span>
+        <p class="fx-card-number" data-bind="text: cardNumberMasked"></p>
+        <div class="fx-card-footer">
+          <div>
+            <span class="fx-card-caption">Available to spend</span>
+            <strong data-bind="text: $parent.extras.money(availableBalance, $parent.extras.cardCurrency($data))"></strong>
+          </div>
+          <div class="fx-card-limit">
+            <span class="fx-card-caption">Single-purchase limit</span>
+            <strong data-bind="text: $parent.extras.money(spendLimit, $parent.extras.cardCurrency($data))"></strong>
+          </div>
+        </div>
+      </button>
+    </div>
+    <p class="fx-muted" data-bind="visible: !extras.loading() && !extras.cards().length">You have no Forex cards yet.</p>
+  </section>
+
+  <div class="fx-extra-grid">
+    <section class="fx-card fx-subsection">
+      <p class="fx-eyebrow">ISSUE A CARD</p><h2>Start with a currency wallet</h2>
+      <fieldset class="fx-form" data-bind="disable: extras.blocked()">
+        <label>Currency wallet<select data-bind="options: extras.issueCurrencies, optionsText: 'currencyCode', optionsValue: 'currencyCode', value: extras.issueCurrency"></select></label>
+        <label>Single-purchase limit<input type="number" min="1" step="0.000001" data-bind="value: extras.issueLimit"></label>
+        <p class="fx-muted">A Forex KYC-approved wallet is required. Issuing a card does not load funds.</p>
+        <button class="fx-button" data-bind="click: extras.reviewIssue, disable: extras.blocked() || !extras.issueCurrencies().length">Review card issue</button>
+      </fieldset>
+    </section>
+
+    <section id="forex-card-management" class="fx-card fx-subsection">
+      <p class="fx-eyebrow">MANAGE A CARD</p><h2>Load, control, or test it</h2>
+      <p class="fx-muted">Select a card above, then load money into it from its matching Forex wallet.</p>
+      <fieldset class="fx-form" data-bind="disable: extras.blocked()">
+        <label>Forex card<select data-bind="options: extras.cards, optionsText: extras.cardLabel, optionsValue: 'forexCardId', optionsCaption: 'Choose card', value: extras.cardId"></select></label>
+        <label>Action<select data-bind="value: extras.action"><option value="LOAD">Load from wallet</option><option value="LIMIT">Change purchase limit</option><option value="STATUS">Change status</option><option value="SPEND">Simulate purchase</option></select></label>
+        <label data-bind="visible: extras.action() === 'STATUS'">Status<select data-bind="value: extras.cardStatus"><option value="ACTIVE">Active</option><option value="BLOCKED">Blocked</option><option value="CLOSED">Closed</option></select></label>
+        <label data-bind="visible: extras.action() !== 'STATUS'">Amount<input type="number" min="0.000001" step="0.000001" data-bind="value: extras.cardAmount"></label>
+        <label data-bind="visible: extras.action() === 'SPEND'">Merchant name (test entry)<input type="text" maxlength="120" placeholder="For example, Demo Airline" data-bind="value: extras.merchant"><small>Enter any test merchant name; no merchant registration is required.</small></label>
+        <button class="fx-button" data-bind="click: extras.reviewCard, disable: extras.blocked() || !extras.selectedCard()">Review card action</button>
+      </fieldset>
+    </section>
+  </div>
+
+  <section class="fx-quote" data-bind="with: extras.review">
+    <h3>Review your action</h3><p data-bind="text: summary"></p>
+    <div class="fx-actions"><button class="fx-button" data-bind="click: $parent.extras.confirmReview, disable: $parent.extras.busy">Confirm action</button><button class="fx-button fx-secondary" data-bind="click: $parent.extras.cancelReview, disable: $parent.extras.busy">Cancel</button></div>
+  </section>
+</section>

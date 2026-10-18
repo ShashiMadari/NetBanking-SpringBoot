@@ -1,0 +1,15 @@
+<section class="page-shell profile-page">
+  <div class="page-heading"><div><p class="eyebrow">PROFILE</p><h1>Your profile.</h1><p class="muted">Review the personal and online-banking information held for you.</p></div></div>
+  <div class="alert alert-error" data-bind="visible: error"><span data-bind="text: error"></span></div>
+  <div class="loading-block" data-bind="visible: loading">Loading profile…</div>
+  <section class="content-card profile-details-card" data-bind="visible: !loading() && profile()">
+    <p class="eyebrow">PROFILE DETAILS</p><h2 data-bind="text: profile() ? profile().fullName : ''"></h2>
+    <div class="profile-details-grid" data-bind="with: profile">
+      <div class="profile-detail"><span>Email address</span><strong data-bind="text: email"></strong></div>
+      <div class="profile-detail"><span>Phone number</span><strong data-bind="text: phone || 'Not provided'"></strong></div>
+      <div class="profile-detail"><span>Customer status</span><strong class="status-pill approved" data-bind="text: status"></strong></div>
+      <div class="profile-detail"><span>Online banking</span><strong class="status-pill approved" data-bind="text: netBankingStatus"></strong></div>
+    </div>
+    <button type="button" class="secondary-button profile-signout-page" data-bind="click: signOut">Sign out</button>
+  </section>
+</section>

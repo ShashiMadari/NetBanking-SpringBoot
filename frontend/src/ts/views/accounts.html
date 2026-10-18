@@ -1,0 +1,17 @@
+<section class="page-shell accounts-page">
+  <div class="page-heading"><div><p class="eyebrow">ACCOUNTS</p><h1>Your account summary.</h1><p class="muted">View the active accounts available for your online banking profile.</p></div></div>
+  <div class="alert alert-error" data-bind="visible: error"><span data-bind="text: error"></span></div>
+  <div class="loading-block" data-bind="visible: loading">Loading your accounts…</div>
+  <section class="content-card" data-bind="visible: !loading()">
+    <div class="card-title-row"><div><p class="eyebrow">ACTIVE ACCOUNTS</p><h2>Available balances</h2></div><a class="secondary-button transaction-history-link" href="?ojr=transactions">Transaction history</a></div>
+    <div class="accounts-table-wrap" data-bind="visible: accounts().length">
+      <table class="accounts-table">
+        <thead><tr><th>Account</th><th>Account number</th><th>Branch</th><th>IFSC</th><th>Available balance</th><th>Status</th></tr></thead>
+        <tbody data-bind="foreach: accounts">
+          <tr><td data-bind="text: accountType"></td><td data-bind="text: accountNumber"></td><td data-bind="text: branchName || 'O-Bank branch'"></td><td data-bind="text: ifscCode || '—'"></td><td class="account-amount" data-bind="text: $parent.formattedAmount($data)"></td><td><span class="status-pill approved" data-bind="text: status"></span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="empty-state" data-bind="visible: accounts().length === 0">No active account was found for this customer.</p>
+  </section>
+</section>

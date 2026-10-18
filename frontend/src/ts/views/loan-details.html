@@ -1,0 +1,36 @@
+<section class="page-shell loans-page">
+  <header class="page-heading">
+    <div>
+      <p class="eyebrow">LOAN DETAILS</p>
+      <h1>Understand your loan.</h1>
+      <p class="muted">Review balances, the amortization schedule, and confirmed repayment history.</p>
+    </div>
+    <a class="secondary-button" href="?ojr=loans">Back to Loans</a>
+  </header>
+  <div class="alert alert-error" data-bind="visible:error"><span data-bind="text:error"></span></div>
+  <div class="loading-block" data-bind="visible:loading || detailsLoading">Loading loan details…</div>
+  <!-- ko if: selectedLoan -->
+  <section class="loan-summary-card">
+    <div class="loan-summary-top"><div><p class="eyebrow">SELECTED LOAN</p><h2 data-bind="text:loanTypeLabel(selectedLoan().loanType)"></h2><p class="loan-account-number" data-bind="text:selectedLoan().loanAccountNumber"></p></div><span class="status-pill" data-bind="text:selectedLoan().status,css:statusClass(selectedLoan().status)"></span></div>
+    <div class="loan-figures"><div><span>Original principal</span><strong data-bind="text:formatInr(selectedLoan().loanAmount)"></strong></div><div><span>Outstanding</span><strong data-bind="text:formatInr(selectedLoan().outstandingAmount)"></strong></div><div><span>Next EMI</span><strong data-bind="text:formatInr(selectedLoan().emiAmount)"></strong><small data-bind="text:'Due '+dateLabel(selectedLoan().nextDueDate)"></small></div><div><span>Interest rate</span><strong data-bind="text:selectedLoan().interestRate+'% p.a.'"></strong><small data-bind="text:selectedLoan().installmentsPaid+' of '+selectedLoan().tenureMonths+' EMIs paid'"></small></div></div>
+  </section>
+  <nav class="loan-page-tabs"><a class="primary-button" data-bind="attr:{href:loanLink('loan-repay',selectedLoan().loanId)},visible:selectedLoan().status==='ACTIVE'">Repay this loan</a><a class="secondary-button" data-bind="attr:{href:loanLink('loan-statements',selectedLoan().loanId)}">Statements</a></nav>
+  <section class="content-card loan-data-panel">
+    <div class="card-title-row"><div><p class="eyebrow">AMORTIZATION SCHEDULE</p><h2>Principal and interest breakdown</h2></div><span class="loan-panel-caption" data-bind="text:'Total scheduled interest: '+formatInr(totalScheduleInterest())"></span></div>
+    <div class="loan-statement-summary"><div><span>Scheduled principal</span><strong data-bind="text:formatInr(totalSchedulePrincipal())"></strong></div><div><span>Scheduled interest</span><strong data-bind="text:formatInr(totalScheduleInterest())"></strong></div><div><span>Scheduled total</span><strong data-bind="text:formatInr(totalSchedulePrincipal()+totalScheduleInterest())"></strong></div></div>
+    <div class="loan-schedule-controls" data-bind="visible:schedule().length"><span data-bind="text:scheduleRangeLabel"></span><div><button class="secondary-button" type="button" data-bind="click:previousSchedulePage,disable:!hasPreviousSchedulePage()">Previous</button><button class="secondary-button" type="button" data-bind="click:nextSchedulePage,disable:!hasNextSchedulePage()">Next</button></div></div>
+    <div class="loans-table-wrap loan-schedule-window" data-bind="visible:schedule().length">
+      <table class="loans-table loan-detail-table">
+        <thead><tr><th>EMI</th><th>Due</th><th>Opening principal</th><th>EMI amount</th><th>Principal</th><th>Interest</th><th>Closing principal</th><th>Status</th><th>Paid at</th></tr></thead>
+        <tbody data-bind="foreach:visibleSchedule"><tr><td data-bind="text:installmentNumber"></td><td data-bind="text:$parent.dateLabel(dueDate)"></td><td data-bind="text:$parent.formatInr(openingPrincipal)"></td><td data-bind="text:$parent.formatInr(emiAmount)"></td><td data-bind="text:$parent.formatInr(principalComponent)"></td><td data-bind="text:$parent.formatInr(interestComponent)"></td><td data-bind="text:$parent.formatInr(closingPrincipal)"></td><td><span class="status-pill" data-bind="text:status,css:$parent.statusClass(status)"></span></td><td data-bind="text:$parent.dateTimeLabel(paidAt)"></td></tr></tbody>
+      </table>
+    </div>
+    <p class="empty-state" data-bind="visible:!detailsLoading() && !schedule().length">No EMI schedule is available for this loan.</p>
+  </section>
+  <section class="content-card loan-data-panel">
+    <div class="card-title-row"><div><p class="eyebrow">REPAYMENT HISTORY</p><h2>Confirmed payments</h2></div></div>
+    <div class="loans-table-wrap" data-bind="visible:repayments().length"><table class="loans-table loan-detail-table"><thead><tr><th>Date</th><th>Type</th><th>Source account</th><th>Amount</th><th>Before</th><th>Principal</th><th>Interest</th><th>After</th><th>Reference</th></tr></thead><tbody data-bind="foreach:repayments"><tr><td data-bind="text:$parent.dateTimeLabel(paymentDate)"></td><td data-bind="text:$parent.paymentTypeLabel(repaymentType)"></td><td data-bind="text:sourceAccountId"></td><td data-bind="text:$parent.formatInr(amount)"></td><td data-bind="text:$parent.formatInr(outstandingBefore)"></td><td data-bind="text:$parent.formatInr(principalComponent)"></td><td data-bind="text:$parent.formatInr(interestComponent)"></td><td data-bind="text:$parent.formatInr(outstandingAfter)"></td><td data-bind="text:referenceNumber"></td></tr></tbody></table></div>
+    <p class="empty-state" data-bind="visible:!detailsLoading() && !repayments().length">No confirmed repayments are available yet.</p>
+  </section>
+  <!-- /ko -->
+</section>

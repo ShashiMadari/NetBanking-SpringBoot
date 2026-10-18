@@ -1,0 +1,31 @@
+<section class="page-shell admin-page admin-detail-page">
+  <div class="page-heading admin-heading">
+    <div><p class="eyebrow">BANK ADMINISTRATION</p><h1>Payment operations</h1></div>
+    <div class="admin-heading-actions">
+      <div class="admin-navigation" data-bind="event: { keydown: adminMenuKeydown }">
+        <button type="button" id="admin-navigation-toggle" class="admin-navigation-toggle" aria-label="Admin sections" aria-controls="admin-navigation-list" aria-expanded="false" data-bind="click: toggleAdminMenu, attr: { 'aria-expanded': adminMenuOpen() ? 'true' : 'false' }"><span aria-hidden="true">⋮</span></button>
+        <nav id="admin-navigation-list" class="admin-navigation-list" aria-label="Admin sections" style="display:none" data-bind="visible: adminMenuOpen">
+          <div data-bind="foreach: adminSections">
+            <a data-bind="text: label, attr: { href: $parent.adminSectionLink(id), 'aria-current': $parent.selectedAdminSection() === id ? 'page' : null }"></a>
+          </div>
+        </nav>
+      </div>
+      <a class="secondary-button" href="?ojr=admin">Back to admin overview</a>
+    </div>
+  </div>
+  <div class="alert alert-error" data-bind="visible: error"><span data-bind="text: error"></span></div>
+  <div class="alert alert-success" data-bind="visible: notice"><span data-bind="text: notice"></span></div>
+  <button type="button" class="secondary-button" data-bind="click: loadDashboard, disable: busy"><span data-bind="text: busy() ? 'Refreshing…' : 'Refresh'"></span></button>
+  <section id="admin-detail-payments" class="content-card admin-section">
+    <div class="card-title-row"><div><p class="eyebrow">PAYMENT OPERATIONS</p><h2 tabindex="-1">Payments and reversals</h2></div></div>
+    <div class="admin-filter-row">
+      <label>Status<select data-bind="value: paymentStatus"><option value="ALL">All statuses</option><option value="SUCCESS">Completed</option><option value="PENDING">Pending</option><option value="OTP_PENDING">Awaiting OTP</option><option value="FAILED">Failed</option><option value="REJECTED">Rejected</option><option value="REVERSED">Reversed</option></select></label>
+      <label>Type<select data-bind="value: paymentType"><option value="ALL">All payment types</option><option value="TRANSFER">Transfer</option><option value="BILL_PAYMENT">Bill payment</option></select></label>
+      <button class="primary-button" data-bind="click: loadPayments, disable: paymentsLoading">Apply filters</button>
+    </div>
+    <p role="status" data-bind="visible: paymentsLoading">Loading matching payments…</p>
+    <div class="alert alert-error" role="alert" data-bind="visible: paymentsError"><span data-bind="text: paymentsError"></span></div>
+    <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Reference</th><th>Customer</th><th>Recipient</th><th>Amount</th><th>Status</th><th>Requested</th><th></th></tr></thead><tbody data-bind="foreach: payments"><tr><td><strong data-bind="text: referenceNumber"></strong><small data-bind="text: paymentType"></small></td><td><span data-bind="text: customerName"></span><small data-bind="text: customerEmail"></small></td><td data-bind="text: $parent.paymentRecipient($data)"></td><td data-bind="text: $parent.formatCurrency(amount)"></td><td><span class="status-pill" data-bind="text: status"></span></td><td data-bind="text: $parent.formatDate(requestedAt)"></td><td><!-- ko if: reversalEligible --><button class="table-action" data-bind="click: () => $parent.reversePayment($data)">Reverse</button><!-- /ko --></td></tr></tbody></table></div>
+    <!-- ko if: !paymentsLoading() && !paymentsError() && !payments().length --><p class="empty-state">No payments match the selected filters.</p><!-- /ko -->
+  </section>
+</section>

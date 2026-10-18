@@ -1,0 +1,24 @@
+<section class="page-shell admin-page admin-detail-page">
+  <div class="page-heading admin-heading">
+    <div><p class="eyebrow">BANK ADMINISTRATION</p><h1>Recent merchant purchases</h1></div>
+    <div class="admin-heading-actions">
+      <div class="admin-navigation" data-bind="event: { keydown: adminMenuKeydown }">
+        <button type="button" id="admin-navigation-toggle" class="admin-navigation-toggle" aria-label="Admin sections" aria-controls="admin-navigation-list" aria-expanded="false" data-bind="click: toggleAdminMenu, attr: { 'aria-expanded': adminMenuOpen() ? 'true' : 'false' }"><span aria-hidden="true">⋮</span></button>
+        <nav id="admin-navigation-list" class="admin-navigation-list" aria-label="Admin sections" style="display:none" data-bind="visible: adminMenuOpen">
+          <div data-bind="foreach: adminSections">
+            <a data-bind="text: label, attr: { href: $parent.adminSectionLink(id), 'aria-current': $parent.selectedAdminSection() === id ? 'page' : null }"></a>
+          </div>
+        </nav>
+      </div>
+      <a class="secondary-button" href="?ojr=admin">Back to admin overview</a>
+    </div>
+  </div>
+  <div class="alert alert-error" data-bind="visible: error"><span data-bind="text: error"></span></div>
+  <div class="alert alert-success" data-bind="visible: notice"><span data-bind="text: notice"></span></div>
+  <button type="button" class="secondary-button" data-bind="click: loadDashboard, disable: busy"><span data-bind="text: busy() ? 'Refreshing…' : 'Refresh'"></span></button>
+  <section id="admin-detail-purchases" class="content-card admin-section">
+    <div class="card-title-row"><div><p class="eyebrow">CARDS & REWARDS</p><h2 tabindex="-1">Recent merchant purchases</h2></div></div>
+    <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Reference</th><th>Customer</th><th>Merchant</th><th>Amount</th><th>Status</th><th>Purchased</th><th></th></tr></thead><tbody data-bind="foreach: rewardPurchases"><tr><td data-bind="text: referenceNumber"></td><td data-bind="text: customerName"></td><td data-bind="text: merchantName"></td><td data-bind="text: $parent.formatCurrency(purchaseAmount)"></td><td><span class="status-pill" data-bind="text: status"></span></td><td data-bind="text: $parent.formatDate(purchasedAt)"></td><td><!-- ko if: status === 'SUCCESS' --><button class="table-action" data-bind="click: () => $parent.reverseRewardPurchase($data)">Reverse</button><!-- /ko --></td></tr></tbody></table></div>
+    <!-- ko ifnot: rewardPurchases().length --><p class="empty-state">No reward purchases are available.</p><!-- /ko -->
+  </section>
+</section>

@@ -1,0 +1,73 @@
+<section class="page-shell fx-page">
+  <header class="fx-heading">
+    <div><p class="fx-eyebrow">CURRENCY EXCHANGE</p><h1>Exchange money at a locked rate.</h1><p>Buy foreign currency from an INR account or sell a wallet balance back to INR.</p></div>
+    <a class="fx-button fx-secondary" href="?ojr=forex">Back to Forex</a>
+  </header>
+
+  <div class="fx-alert fx-error" role="alert" data-bind="visible: dataError, text: dataError"></div>
+  <div class="fx-alert fx-error" role="alert" data-bind="visible: error, text: error"></div>
+  <p role="status" data-bind="visible: loading">Updating rates and balances…</p>
+
+  <!-- ko if: receipt -->
+  <section class="fx-receipt" aria-label="Conversion receipt" data-bind="with: receipt">
+    <p class="fx-eyebrow">CONVERSION RESULT</p>
+    <h2 data-bind="text: status"></h2>
+    <p><strong data-bind="text: $parent.money(fromAmount, fromCurrency)"></strong> → <strong data-bind="text: $parent.money(receiveAmount, toCurrency)"></strong></p>
+    <p>Reference: <strong data-bind="text: referenceNumber"></strong></p>
+    <small data-bind="text: $parent.dateLabel(createdAt)"></small>
+  </section>
+  <!-- /ko -->
+
+  <div class="fx-layout">
+    <section class="fx-card">
+      <p class="fx-eyebrow">CURRENCY EXCHANGE</p><h2>Convert with clarity</h2>
+      <!-- ko ifnot: pending -->
+      <fieldset class="fx-form" data-bind="disable: converting()">
+        <label>What would you like to do?
+          <select data-bind="value: direction, disable: locked()">
+            <option value="BUY">Buy foreign currency</option><option value="SELL">Sell wallet currency for INR</option>
+          </select>
+        </label>
+        <label>Foreign currency
+          <select data-bind="options: rates, optionsText: 'currencyCode', optionsValue: 'currencyCode', optionsCaption: 'Choose currency', value: currency, disable: loading() || locked()"></select>
+        </label>
+        <label><span data-bind="text: 'Amount to exchange (' + (fromCurrency() || 'currency') + ')'"></span>
+          <input type="text" inputmode="decimal" placeholder="Enter amount" autocomplete="off" data-bind="textInput: amount, disable: locked()">
+        </label>
+        <label><span data-bind="text: direction() === 'BUY' ? 'Pay from INR account' : 'Receive INR into account'"></span>
+          <select data-bind="options: accounts, optionsText: accountLabel, optionsValue: 'accountId', optionsCaption: 'Choose INR account', value: accountId, disable: loading() || locked()"></select>
+        </label>
+        <!-- ko if: selectedAccount -->
+        <p class="fx-muted" data-bind="text: 'Account available balance: ' + money(selectedAccount().availableBalance, 'INR')"></p>
+        <!-- /ko -->
+        <!-- ko if: direction() === 'SELL' && walletLoaded() -->
+        <p class="fx-muted" data-bind="text: 'Wallet available balance: ' + money(selectedWallet() ? selectedWallet().availableBalance : 0, currency())"></p>
+        <!-- /ko -->
+        <button class="fx-button" data-bind="click: getQuote, enable: canQuote, text: quoting() ? 'Getting quote…' : 'Get exchange quote'"></button>
+      </fieldset>
+      <p class="fx-muted" data-bind="visible: !loading() && !accounts().length">An active INR account is required for conversion.</p>
+      <p class="fx-muted" data-bind="visible: !loading() && !rates().length">No exchange currencies are currently available.</p>
+      <!-- /ko -->
+
+      <!-- ko if: quote -->
+      <section class="fx-quote" data-bind="with: quote" aria-label="Exchange quote">
+      <p class="fx-eyebrow">REVIEW YOUR EXCHANGE</p>
+        <span>You exchange</span><h3 data-bind="text: $parent.money(fromAmount, fromCurrency)"></h3>
+        <span>You receive</span><div class="fx-receive" data-bind="text: $parent.money(receiveAmount, toCurrency)"></div>
+        <dl class="fx-details">
+          <div><dt>Quoted rate</dt><dd data-bind="text: '1 ' + (fromCurrency === 'INR' ? toCurrency : fromCurrency) + ' = INR ' + Number(customerRateInr).toLocaleString('en-IN', { maximumFractionDigits: 6 })"></dd></div>
+          <div><dt>Included rate markup</dt><dd data-bind="text: $parent.markupLabel(markupBps)"></dd></div>
+          <div><dt>Rate lock</dt><dd><strong data-bind="text: $parent.quoteExpired() ? &quot;Expired&quot; : $parent.quoteSeconds() + &quot; seconds remaining&quot;"></strong><small data-bind="text: &quot;Expires &quot; + $parent.dateLabel(expiresAt)"></small></dd></div>
+        </dl>
+        <small>The quoted rate includes the displayed markup. Quote validity is checked when you confirm.</small>
+      </section>
+      <div class="fx-alert" data-bind="visible: pending">
+        This request is awaiting a result. Retry checks the same request without creating a new payment.
+        <!-- ko if: pending --><p data-bind="text: 'INR account ID: ' + pending().request.sourceAccountId"></p><!-- /ko -->
+      </div>
+      <button class="fx-button fx-confirm" data-bind="click: confirm, disable: converting() || loading() || quoting() || !canConfirmQuote(), text: converting() ? 'Processing…' : (pending() ? 'Retry conversion request' : 'Confirm conversion')"></button>
+      <!-- /ko -->
+    </section>
+
+  </div>
+</section>

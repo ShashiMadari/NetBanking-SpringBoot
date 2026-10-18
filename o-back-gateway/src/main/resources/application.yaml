@@ -1,0 +1,156 @@
+server:
+  port: 8443
+
+spring:
+  application:
+    name: o-bank-gateway
+
+  cloud:
+    gateway:
+      server:
+        webmvc:
+          routes:
+            - id: identity-service
+              uri: lb://O-BANK-IDENTITY
+              predicates:
+                - Path=/api/auth/**,/api/users/**,/api/notifications/**,/api/admin/audit-events/**
+            
+            - id: banking-service
+              uri: lb://O-BANK-BANKING
+              predicates:
+                - Path=/api/accounts/**
+            
+            - id: banking-beneficiary-list
+              uri: lb://O-BANK-BANKING
+              predicates:
+                - Path=/api/beneficiaries
+                - Method=GET
+            
+            - id: banking-beneficiary-create
+              uri: lb://O-BANK-BANKING
+              predicates:
+                - Path=/api/beneficiaries
+                - Method=POST
+            
+            - id: banking-admin-pending-beneficiaries
+              uri: lb://O-BANK-BANKING
+              predicates:
+                - Path=/api/admin/beneficiaries/pending
+                - Method=GET
+
+            - id: banking-admin-beneficiary-approve
+              uri: lb://O-BANK-BANKING
+              predicates:
+                - Path=/api/admin/beneficiaries/*/approve
+                - Method=PUT
+            
+            - id: banking-transfer-service
+              uri: lb://O-BANK-BANKING
+              predicates:
+                - Path=/api/transfers/**
+            
+            - id: banking-bill-payment-service
+              uri: lb://O-BANK-BANKING
+              predicates:
+                - Path=/api/billers,/api/bill-payments/**
+
+            - id: banking-payment-history-service
+              uri: lb://O-BANK-BANKING
+              predicates:
+                - Path=/api/payments/**
+
+            - id: banking-admin-payment-service
+              uri: lb://O-BANK-BANKING
+              predicates:
+                - Path=/api/admin/payments/**
+
+            - id: banking-admin-account-service
+              uri: lb://O-BANK-BANKING
+              predicates:
+                - Path=/api/admin/accounts/**
+
+            - id: credit-service
+              uri: lb://O-BANK-CREDIT
+              predicates:
+                - Path=/api/cards/**
+            
+            - id: credit-card-bill-payments
+              uri: lb://O-BANK-CREDIT
+              predicates:
+                - Path=/api/credit-card-bill-payments/**
+
+            - id: credit-card-rewards
+              uri: lb://O-BANK-CREDIT
+              predicates:
+                - Path=/api/credit-card-rewards/**
+
+            - id: credit-card-emi
+              uri: lb://O-BANK-CREDIT
+              predicates:
+                - Path=/api/credit-card-emi/**
+
+            - id: credit-card-activity
+              uri: lb://O-BANK-CREDIT
+              predicates:
+                - Path=/api/credit-cards/**
+
+            - id: credit-admin-reward-merchants
+              uri: lb://O-BANK-CREDIT
+              predicates:
+                - Path=/api/admin/reward-merchants/**
+
+            - id: credit-admin-reward-purchases
+              uri: lb://O-BANK-CREDIT
+              predicates:
+                - Path=/api/admin/credit-card-rewards/**
+
+            - id: credit-loans
+              uri: lb://O-BANK-CREDIT
+              predicates:
+                - Path=/api/loans/**
+
+            - id: credit-loan-payments
+              uri: lb://O-BANK-CREDIT
+              predicates:
+                - Path=/api/loan-payments/**
+
+            - id: banking-account-statements
+              uri: lb://O-BANK-BANKING
+              predicates:
+                - Path=/api/statements/**
+
+            - id: banking-dashboard
+              uri: lb://O-BANK-BANKING
+              predicates:
+                - Path=/api/dashboard,/api/dashboard/**
+
+            - id: identity-user-profile
+              uri: lb://O-BANK-IDENTITY
+              predicates:
+                - Path=/api/users/**
+
+            - id: forex-customer-api
+              uri: lb://O-BANK-FOREX
+              predicates:
+                - Path=/api/forex/**
+
+            - id: forex-admin-api
+              uri: lb://O-BANK-FOREX
+              predicates:
+                - Path=/api/admin/forex/**
+            
+            - id: investment-customer-api
+              uri: lb://O-BANK-INVESTMENT
+              predicates:
+                - Path=/api/investments/**
+
+            - id: investment-admin-api
+              uri: lb://O-BANK-INVESTMENT
+              predicates:
+                - Path=/api/admin/investments/**
+
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/

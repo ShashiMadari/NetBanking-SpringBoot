@@ -1,0 +1,24 @@
+FROM registry.access.redhat.com/ubi9/openjdk-17:latest AS build
+ARG SERVICE
+USER 0
+WORKDIR /build
+COPY ${SERVICE}/pom.xml pom.xml
+COPY ${SERVICE}/src src
+# Keep existing local configuration intact, but remove credentials from the
+# packaged container artifact. Compose supplies them at runtime from .env.
+RUN find src/main/resources -maxdepth 1 -name 'application.y*' -exec sed -i \
+    -e '/^[[:space:]]*password:/d' \
+    -e '/^[[:space:]]*jwt-secret:/d' \
+    -e '/^[[:space:]]*identity-api-key:/d' \
+    -e '/^[[:space:]]*banking-api-key:/d' \
+    -e '/^[[:space:]]*service-key:/d' \
+    -e '/^[[:space:]]*api-key:/d' {} +
+RUN mvn -B -ntp -DskipTests package && cp target/${SERVICE}-0.0.1-SNAPSHOT.jar /app.jar
+
+FROM registry.access.redhat.com/ubi9/openjdk-17-runtime:latest
+USER 0
+WORKDIR /app
+COPY --from=build /app.jar app.jar
+RUN chown 185:0 /app/app.jar
+USER 185
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

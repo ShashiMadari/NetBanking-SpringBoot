@@ -1,0 +1,84 @@
+server:
+  port: 8445
+
+spring:
+  application:
+    name: o-bank-banking
+
+  datasource:
+    url: jdbc:oracle:thin:@//127.0.0.1:1522/FREEPDB1
+    username: o_bank_banking
+    password: ${BANKING_DB_PASSWORD}
+    driver-class-name: oracle.jdbc.OracleDriver
+    
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      "[mail.smtp.auth]": true
+      "[mail.smtp.starttls.enable]": true
+      "[mail.smtp.connectiontimeout]": 5000
+      "[mail.smtp.timeout]": 5000
+      "[mail.smtp.writetimeout]": 5000
+
+  kafka:
+    bootstrap-servers: 127.0.0.1:9092
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+
+    consumer:
+      group-id: o-bank-banking
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+    listener:
+      ack-mode: record
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+app:
+  security:
+    jwt-secret: ${JWT_SECRET}
+    jwt-expiration-seconds: 3600
+  mail:
+    from: ${MAIL_USERNAME}
+
+  identity:
+    base-url: ${IDENTITY_BASE_URL:http://localhost:8444}
+
+
+  internal:
+    identity-api-key: ${IDENTITY_API_KEY}
+    banking-api-key: ${BANKING_API_KEY}
+
+  kafka:
+    topics:
+      investment-order-placed: investment.order.placed.v1
+      banking-debit-succeeded: banking.account.debit.succeeded.v1
+      banking-debit-failed: banking.account.debit.failed.v1
+
+
+logging:
+  level:
+    org.springframework.security: TRACE
+
+#account-statement-scheduler:
+  #cron: "0 0 9 1 * *"
+
+account-statement-scheduler:
+  cron: "0 * * * * *"
+  

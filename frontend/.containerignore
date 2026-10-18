@@ -1,0 +1,8 @@
+node_modules
+src
+staged-themes
+theme-backups
+playwright-report
+test-results
+.git
+*.log

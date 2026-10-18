@@ -1,0 +1,52 @@
+<section class="page-shell admin-page admin-detail-page admin-investments-page">
+  <div class="page-heading admin-heading">
+    <div><p class="eyebrow">BANK ADMINISTRATION</p><h1>Investment operations</h1><p>Monitor automatic market settlement, customer schedules, and product terms.</p></div>
+    <div class="admin-heading-actions">
+      <div class="admin-navigation" data-bind="event: { keydown: adminMenuKeydown }">
+        <button type="button" id="admin-navigation-toggle" class="admin-navigation-toggle" aria-label="Admin sections" aria-controls="admin-navigation-list" aria-expanded="false" data-bind="click: toggleAdminMenu, attr: { 'aria-expanded': adminMenuOpen() ? 'true' : 'false' }"><span aria-hidden="true">⋮</span></button>
+        <nav id="admin-navigation-list" class="admin-navigation-list" aria-label="Admin sections" style="display:none" data-bind="visible: adminMenuOpen">
+          <div data-bind="foreach: adminSections"><a data-bind="text: label, attr: { href: $parent.adminSectionLink(id), 'aria-current': $parent.selectedAdminSection() === id ? 'page' : null }"></a></div>
+        </nav>
+      </div>
+      <a class="secondary-button" href="?ojr=admin">Back to admin overview</a>
+    </div>
+  </div>
+
+  <div class="alert alert-error" data-bind="visible: error"><span data-bind="text: error"></span></div>
+  <div class="alert alert-success" data-bind="visible: notice"><span data-bind="text: notice"></span></div>
+
+  <div class="admin-investment-toolbar"><button type="button" class="secondary-button" data-bind="click: loadInvestmentOperations, disable: investmentsLoading"><span data-bind="text: investmentsLoading() ? 'Refreshing…' : 'Refresh data'"></span></button><span data-bind="text: settlementOrders().length + ' order(s) settling automatically'"></span></div>
+
+  <section class="content-card admin-section">
+    <div class="card-title-row"><div><p class="eyebrow">AUTOMATIC SETTLEMENT QUEUE</p><h2>Market orders awaiting settlement</h2><p class="muted">No administrator approval is required. Orders become allotted automatically after a successful debit.</p></div></div>
+    <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Order</th><th>Customer</th><th>Product</th><th>Amount</th><th>Mode</th><th>Settlement status</th><th></th></tr></thead><tbody data-bind="foreach: settlementOrders"><tr><td><strong data-bind="text: referenceNumber"></strong><small data-bind="text: 'Order #' + orderId"></small></td><td data-bind="text: customerUserId"></td><td><strong data-bind="text: productName"></strong><small data-bind="text: productType"></small></td><td data-bind="text: $parent.formatCurrency(amount)"></td><td data-bind="text: investmentMode"></td><td data-bind="text: $parent.settlementDue(debitedAt)"></td><td class="admin-investment-actions"><button type="button" class="table-action" data-bind="click: () => $parent.openOrder($data)">Details</button></td></tr></tbody></table></div>
+    <!-- ko ifnot: settlementOrders().length --><p class="empty-state">There are no market orders currently waiting for automatic settlement.</p><!-- /ko -->
+  </section>
+
+  <section class="content-card admin-section">
+    <div class="card-title-row"><div><p class="eyebrow">MATURED FIXED DEPOSITS</p><h2>Awaiting manual settlement</h2><p class="muted">No funds are transferred automatically. Verify and settle each matured deposit through your approved process.</p></div></div>
+    <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Holding</th><th>Customer</th><th>Principal</th><th>Recorded value</th><th>Term</th><th>Matured on</th><th>Status</th></tr></thead><tbody data-bind="foreach: maturedFixedDeposits"><tr><td data-bind="text: '#' + holdingId"></td><td data-bind="text: customerUserId"></td><td data-bind="text: $parent.formatCurrency(investedAmount)"></td><td data-bind="text: $parent.formatCurrency(recordedValue)"></td><td data-bind="text: tenureMonths + ' months'"></td><td data-bind="text: $parent.shortDate(maturityDate)"></td><td><span class="status-pill" data-bind="text: status"></span></td></tr></tbody></table></div>
+    <!-- ko ifnot: maturedFixedDeposits().length --><p class="empty-state">No Fixed Deposits are awaiting settlement.</p><!-- /ko -->
+  </section>
+
+  <section class="content-card admin-section">
+    <div class="card-title-row"><div><p class="eyebrow">INVESTMENT SCHEDULES</p><h2>Active and completed customer instructions</h2></div></div>
+    <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Schedule</th><th>Customer</th><th>Product</th><th>Type</th><th>Amount</th><th>Next debit</th><th>Installments</th><th>Status</th></tr></thead><tbody data-bind="foreach: schedules"><tr><td data-bind="text: '#' + scheduleId"></td><td data-bind="text: customerUserId"></td><td><strong data-bind="text: productName"></strong><small data-bind="text: productCode"></small></td><td data-bind="text: scheduleType"></td><td data-bind="text: $parent.formatCurrency(amount)"></td><td><span data-bind="text: $parent.shortDate(nextDebitDate)"></span><small data-bind="visible: debitDay, text: debitDay ? 'Day ' + debitDay : ''"></small></td><td data-bind="text: (installmentsCompleted || 0) + (tenureMonths ? ' / ' + tenureMonths : '')"></td><td><span class="status-pill" data-bind="text: status"></span></td></tr></tbody></table></div>
+    <!-- ko ifnot: schedules().length --><p class="empty-state">No investment schedules are available.</p><!-- /ko -->
+  </section>
+
+  <section class="content-card admin-section">
+    <div class="card-title-row"><div><p class="eyebrow">PRODUCT CATALOGUE</p><h2>Investment products</h2><p class="muted">Open any product to review its investment terms and market details.</p></div></div>
+    <div class="admin-investment-products" data-bind="foreach: products"><article class="admin-investment-product"><p class="eyebrow" data-bind="text: $parent.productType($data)"></p><h3 data-bind="text: $parent.productName($data)"></h3><p data-bind="text: $parent.productCode($data)"></p><div><span>Minimum</span><strong data-bind="text: $parent.formatCurrency($parent.minimumAmount($data))"></strong></div><button type="button" class="secondary-button" data-bind="click: () => $parent.openProduct($data)">View product details</button></article></div>
+    <!-- ko ifnot: products().length --><p class="empty-state">No investment products are available.</p><!-- /ko -->
+  </section>
+
+  <!-- ko if: selectedOrder -->
+  <div class="admin-investment-overlay"><aside class="admin-investment-drawer" role="dialog" aria-modal="true" aria-label="Investment order details" data-bind="with: selectedOrder"><div class="admin-investment-drawer-header"><div><p class="eyebrow">ORDER DETAILS</p><h2 data-bind="text: referenceNumber"></h2></div><button type="button" class="drawer-close" aria-label="Close order details" data-bind="click: $parent.closeOrder">×</button></div><dl class="admin-investment-detail-list"><dt>Status</dt><dd><span class="status-pill" data-bind="text: status"></span></dd><dt>Order ID</dt><dd data-bind="text: orderId"></dd><dt>Customer / account</dt><dd data-bind="text: customerUserId + ' / ' + accountId"></dd><dt>Product</dt><dd data-bind="text: productName + ' (' + productCode + ')'"></dd><dt>Order type</dt><dd data-bind="text: orderKind + ' · ' + investmentMode"></dd><dt>Amount</dt><dd data-bind="text: $parent.formatCurrency(amount)"></dd><dt>Quantity</dt><dd data-bind="text: quantity"></dd><dt>Banking reference</dt><dd data-bind="text: bankingReferenceNumber || '—'"></dd><dt>Debited</dt><dd data-bind="text: $parent.formatDate(debitedAt || '')"></dd><dt>Automatic settlement</dt><dd data-bind="text: $parent.settlementDue(debitedAt)"></dd></dl><p class="muted">This market order is settled automatically. No administrator action is needed.</p><div class="admin-investment-drawer-actions"><button type="button" class="secondary-button" data-bind="click: $parent.closeOrder">Close</button></div></aside></div>
+  <!-- /ko -->
+
+  <!-- ko if: selectedProduct -->
+  <div class="admin-investment-overlay"><aside class="admin-investment-drawer" role="dialog" aria-modal="true" aria-label="Investment product details" data-bind="with: selectedProduct"><div class="admin-investment-drawer-header"><div><p class="eyebrow">PRODUCT DETAILS</p><h2 data-bind="text: $parent.productName($data)"></h2><p data-bind="text: $parent.productCode($data)"></p></div><button type="button" class="drawer-close" aria-label="Close product details" data-bind="click: $parent.closeProduct">×</button></div><!-- ko if: $parent.productDetailLoading --><p class="empty-state">Loading product terms…</p><!-- /ko --><!-- ko ifnot: $parent.productDetailLoading --><dl class="admin-investment-detail-list"><dt>Investment type</dt><dd data-bind="text: $parent.productType($data)"></dd><dt>Minimum investment</dt><dd data-bind="text: $parent.formatCurrency($parent.minimumAmount($data))"></dd><dt>Risk level</dt><dd data-bind="text: riskLevel || 'Not available'"></dd><dt>Lock-in period</dt><dd data-bind="text: lockInMonths !== undefined && lockInMonths !== null ? lockInMonths + ' months' : 'None'"></dd><dt>Price / rate</dt><dd data-bind="text: currentPrice !== undefined && currentPrice !== null ? $parent.formatCurrency(currentPrice) : (annualRate !== undefined && annualRate !== null ? annualRate + '% p.a.' : 'Not available')"></dd><dt>Demat account</dt><dd data-bind="text: $parent.yesNo(requiresDemat)"></dd><dt>Historical return</dt><dd data-bind="text: $parent.historicalReturn($data)"></dd><dt>Exchange</dt><dd data-bind="text: $parent.exchange($data)"></dd><dt>Tenure</dt><dd data-bind="text: tenureMonths ? tenureMonths + ' months' : 'Not applicable'"></dd></dl><!-- /ko --></aside></div>
+  <!-- /ko -->
+
+</section>

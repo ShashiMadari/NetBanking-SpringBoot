@@ -1,0 +1,32 @@
+<section class="login-page">
+  <div class="login-hero">
+    <p class="eyebrow">O-BANK DIGITAL</p>
+    <h1>Start your secure banking journey.</h1>
+    <p>Your bank creates your customer account first. Then you can activate your online-banking password here.</p>
+    <div class="hero-orb hero-orb-one"></div>
+    <div class="hero-orb hero-orb-two"></div>
+  </div>
+  <main class="login-card">
+    <p class="eyebrow">REGISTER</p>
+    <h2>Activate online banking</h2>
+    <div class="auth-switch">
+      <span>Already registered?</span>
+      <button type="button" class="secondary-button" data-bind="click:goToLogin">Sign in</button>
+    </div>
+    <div class="alert alert-error" data-bind="visible:error"><span data-bind="text:error"></span></div>
+    <div class="alert alert-success" data-bind="visible:notice"><span data-bind="text:notice"></span></div>
+    <!-- ko ifnot:started -->
+    <p class="muted">Enter the exact name and email that your bank has on record.</p>
+    <label>Full name<input autocomplete="name" data-bind="value:fullName" /></label>
+    <label>Registered email<input type="email" autocomplete="email" data-bind="value:email" /></label>
+    <button class="primary-button" data-bind="click:start,disable:busy"><span data-bind="text:busy() ? 'Sending…' : 'Send demo password'"></span></button>
+    <!-- /ko -->
+    <!-- ko if:started -->
+    <p class="muted">Enter the demo password from your email, then choose your permanent password.</p>
+    <label>Demo password from email<input type="password" autocomplete="one-time-code" data-bind="value:demoPassword" /></label>
+    <label>New password<input type="password" autocomplete="new-password" data-bind="value:newPassword" /></label>
+    <label>Confirm new password<input type="password" autocomplete="new-password" data-bind="value:confirmPassword" /></label>
+    <button class="primary-button" data-bind="click:complete,disable:busy"><span data-bind="text:busy() ? 'Completing…' : 'Complete registration'"></span></button>
+    <!-- /ko -->
+  </main>
+</section>

@@ -1,0 +1,54 @@
+<section class="page-shell cards-page">
+  <div class="page-heading"><div><p class="eyebrow">CARD SERVICE</p><h1>Cards that stay in your control.</h1><p class="muted">View and manage your Debit and Credit cards securely.</p></div></div>
+  <div class="alert alert-error" data-bind="visible: error"><span data-bind="text: error"></span></div>
+  <div class="alert alert-success" data-bind="visible: notice"><span data-bind="text: notice"></span></div>
+  <div class="loading-block" data-bind="visible: loading">Loading your cards…</div>
+  <p class="empty-state" data-bind="visible: !loading() && cards().length === 0">You do not have any cards available in digital banking. Please contact O-Bank support if you need assistance.</p>
+  <div class="card-management-layout">
+  <div class="card-grid" data-bind="visible: !loading() && cards().length, foreach: cards">
+    <article class="bank-card" data-bind="click: function(data) { $parent.selectCard(data); }, css: { 'selected-card': $parent.isSelectedCard($data), 'credit-card': cardType === 'CREDIT', 'debit-card': cardType === 'DEBIT' }"><div class="card-visual"><div class="bank-card-topline"><span data-bind="text: cardType + ' · ' + network"></span></div><strong data-bind="text: '•••• ' + lastFour"></strong></div></article>
+  </div>
+  <aside class="content-card selected-card-details" data-bind="with: selectedCard, visible: !loading() && selectedCard()">
+    <div class="card-details-heading"><div><p class="eyebrow">SELECTED CARD</p><h2 data-bind="text: cardType + ' card · •••• ' + lastFour"></h2></div><span class="card-status-badge" data-bind="text: status, css: status.toLowerCase()"></span></div>
+    <div class="card-facts"><div><span>Card status</span><small data-bind="text: $parent.cardStatusLabel($data)"></small></div><div><span>Daily limit</span><small data-bind="text: 'INR ' + Number(dailyLimit).toLocaleString('en-IN')"></small></div><div data-bind="visible: cardType === 'CREDIT'"><span>Available credit</span><small data-bind="text: 'INR ' + Number(creditLimit - outstandingAmount).toLocaleString('en-IN')"></small></div><div data-bind="visible: cardType === 'CREDIT'"><span>Reward points</span><small data-bind="text: $parent.rewardPoints($data)"></small></div><div data-bind="visible: cardType === 'CREDIT'"><span>Outstanding balance</span><small data-bind="text: 'INR ' + Number(outstandingAmount).toLocaleString('en-IN', { minimumFractionDigits: 2 })"></small></div><div data-bind="visible: cardType === 'CREDIT'"><span>Minimum due</span><small data-bind="text: 'INR ' + Number(minimumDueAmount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })"></small></div><div data-bind="visible: cardType === 'CREDIT'"><span>Payment due date</span><small data-bind="text: paymentDueDate || 'Not set'"></small></div></div>
+    <div class="card-limit-section"><button type="button" class="secondary-button" data-bind="visible: cardType === 'CREDIT' && !$parent.isEditingDailyLimit($data), click: function(data) { $parent.startEditingDailyLimit(data); }">Change daily limit</button><div class="form-actions" data-bind="visible: cardType === 'CREDIT' && $parent.isEditingDailyLimit($data)"><input type="number" min="1" step="0.01" data-bind="value: $parent.dailyLimitInput, attr: { max: creditLimit }" /><button type="button" class="primary-button" data-bind="click: function(data) { $parent.saveDailyLimit(data); }, disable: $parent.dailyLimitBusy">Save limit</button><button type="button" class="secondary-button" data-bind="click: $parent.cancelEditingDailyLimit, disable: $parent.dailyLimitBusy">Cancel</button></div></div>
+    <div class="card-action-row">
+      <div class="card-services-links" data-bind="visible: cardType === 'CREDIT'">
+        <p class="eyebrow">CARD SERVICES</p>
+        <div class="form-actions">
+          <a class="secondary-button" href="?ojr=card-pin">Change PIN</a><a class="secondary-button" href="?ojr=card-bill">Pay card bill</a><a class="secondary-button" href="?ojr=card-statement">Monthly statement</a><a class="secondary-button" href="?ojr=card-rewards">Rewards</a><a class="secondary-button" href="?ojr=card-emi">Convert &amp; manage purchases</a>
+        </div>
+      </div>
+      <div class="card-security-actions"><button type="button" class="card-block-button" data-bind="visible: $parent.isActive($data), click: function(data) { $parent.requestCardAction(data, 'block'); }">Block card</button><button type="button" class="card-unblock-button" data-bind="visible: !$parent.isActive($data), click: function(data) { $parent.requestCardAction(data, 'unblock'); }">Unblock card</button></div>
+    </div>
+  </aside>
+  </div>
+  <section class="content-card card-action-confirmation" data-bind="with: pendingCardAction, visible: pendingCardAction"><p class="eyebrow">CONFIRM CARD CONTROL</p><h2 data-bind="text: action === 'block' ? 'Block card ending •••• ' + lastFour + '? ' : 'Unblock card ending •••• ' + lastFour + '? '"></h2><p class="muted" data-bind="text: action === 'block' ? 'Blocking immediately disables transactions on this card. You can reverse this later by unblocking it. ' : 'Unblocking re-enables transactions on this card. Only continue if you are sure the card is secure. '"></p><div class="form-actions"><button type="button" class="secondary-button" data-bind="click: $parent.cancelCardAction, disable: $parent.cardActionBusy">Cancel</button><button type="button" class="primary-button" data-bind="click: $parent.confirmCardAction, disable: $parent.cardActionBusy"><span data-bind="text: $parent.cardActionBusy() ? 'Updating…' : (action === 'block' ? 'Yes, block card' : 'Yes, unblock card')"></span></button></div></section>
+  <section class="content-card card-transactions-panel" data-bind="visible: !loading() && selectedCard()">
+    <div class="card-title-row">
+      <div>
+        <p class="eyebrow">CARD TRANSACTIONS</p>
+        <h2 data-bind="text: selectedCard() ? selectedCard().cardType + ' card · •••• ' + selectedCard().lastFour : ''"></h2>
+      </div>
+    </div>
+    <p class="muted">Showing the latest transactions for the selected card.</p>
+    <div class="loading-block" data-bind="visible: loadingCardTransactions">Loading card transactions…</div>
+    <div class="alert alert-error" data-bind="visible: cardTransactionsError"><span data-bind="text: cardTransactionsError"></span></div>
+    <div class="transaction-table-wrap" data-bind="visible: !loadingCardTransactions() && !cardTransactionsError() && cardTransactions().length">
+      <table class="transaction-table">
+        <thead><tr><th>Date</th><th>Type</th><th>Description</th><th>Reference</th><th>Amount</th><th>Status</th></tr></thead>
+        <tbody data-bind="foreach: cardTransactions">
+          <tr>
+            <td data-bind="text: $parent.formatDate(occurredAt)"></td>
+            <td data-bind="text: transactionType"></td>
+            <td data-bind="text: description"></td>
+            <td data-bind="text: referenceNumber"></td>
+            <td data-bind="text: $parent.formatAmount(amount), css: direction && direction.toLowerCase()"></td>
+            <td><span class="status-pill" data-bind="text: status"></span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="empty-state" data-bind="visible: !loadingCardTransactions() && !cardTransactionsError() && cardTransactions().length === 0">No transactions are available for this card yet.</p>
+  </section>
+</section>
