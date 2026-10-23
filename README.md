@@ -18,6 +18,7 @@ The backend uses separate Spring Boot services with Eureka discovery and an API 
 - [Directory structure](#directory-structure)
 - [Services and ports](#services-and-ports)
 - [Requirements](#requirements)
+- [Run published containers](#run-published-containers)
 - [Setup and startup](#setup-and-startup)
 - [Container commands](#container-commands)
 - [Scheduled processing](#scheduled-processing)
@@ -183,6 +184,23 @@ The current demo uses HTTP, including on port 8443; the port number alone does n
 - SMTP credentials to demonstrate OTP email, statements, or reminders.
 
 **Database setup is a prerequisite.** The included investment SQL is not a complete automated database installation for every service. No customer database export or preconfigured user credentials are included.
+
+## Run published containers
+
+The eight prebuilt application images are publicly available under **`quay.io/shashimadari`**, with tags **`demo-20261023`** and **`latest`**. No Quay login is required to pull them.
+
+```powershell
+podman pull quay.io/shashimadari/o-bank-frontend:demo-20261023
+```
+
+For the full application, configure your own Oracle, Kafka, and runtime credentials, then set `IMAGE_REGISTRY=quay.io/shashimadari` and `IMAGE_TAG=demo-20261023` in `.env`. Use the mirrored deployment:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\run-mirrored.ps1 pull
+powershell -NoProfile -ExecutionPolicy Bypass -File .\run-mirrored.ps1 up -d
+```
+
+See **[the complete Quay deployment guide](DEPLOY-QUAY.md)** for prerequisites and configuration. The published images target Linux/AMD64 and the Windows WSL mirrored stack. No local application build is needed for this route. The source-build instructions below are the alternative for development.
 
 ## Setup and startup
 
