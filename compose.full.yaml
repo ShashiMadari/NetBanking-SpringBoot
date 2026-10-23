@@ -1,0 +1,208 @@
+# Published Windows/WSL mirrored stack, including clean Oracle and Kafka.
+name: o-bank-full
+services:
+  oracle:
+    image: ${IMAGE_REGISTRY:-quay.io/shashimadari}/o-bank-oracle:${IMAGE_TAG:-demo-20261023}
+    restart: unless-stopped
+    shm_size: 1g
+    ports:
+    - 127.0.0.1:${ORACLE_HOST_PORT:-1522}:1521
+    environment:
+      ORACLE_PWD: ${ORACLE_PWD:?required}
+      IDENTITY_DB_PASSWORD: ${IDENTITY_DB_PASSWORD:?required}
+      BANKING_DB_PASSWORD: ${BANKING_DB_PASSWORD:?required}
+      CREDIT_DB_PASSWORD: ${CREDIT_DB_PASSWORD:?required}
+      FOREX_DB_PASSWORD: ${FOREX_DB_PASSWORD:?required}
+      INVESTMENT_DB_PASSWORD: ${INVESTMENT_DB_PASSWORD:?required}
+    volumes:
+    - oracle-data:/opt/oracle/oradata
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - test -f /opt/oracle/oradata/.obank-schema-v1 && /opt/oracle/checkDBStatus.sh
+        >/dev/null 2>&1
+      interval: 15s
+      timeout: 10s
+      retries: 40
+      start_period: 90s
+  kafka:
+    image: ${IMAGE_REGISTRY:-quay.io/shashimadari}/o-bank-kafka:${IMAGE_TAG:-demo-20261023}
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+    - kafka-data:/var/lib/kafka/data
+    healthcheck:
+      test:
+      - CMD
+      - /opt/kafka/bin/kafka-broker-api-versions.sh
+      - --bootstrap-server
+      - localhost:9092
+      interval: 10s
+      timeout: 10s
+      retries: 20
+      start_period: 30s
+  eureka-server:
+    image: ${IMAGE_REGISTRY:-quay.io/shashimadari}/o-bank-eureka:${IMAGE_TAG:-demo-20261023}
+    restart: unless-stopped
+    network_mode: host
+  o-back-identity:
+    image: ${IMAGE_REGISTRY:-quay.io/shashimadari}/o-bank-identity:${IMAGE_TAG:-demo-20261023}
+    restart: unless-stopped
+    depends_on:
+      eureka-server:
+        condition: service_started
+      oracle:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://localhost:8761/eureka/
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'false'
+      SPRING_DATASOURCE_URL: jdbc:oracle:thin:@//localhost:${ORACLE_HOST_PORT:-1522}/FREEPDB1
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+      KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+      IDENTITY_BASE_URL: http://localhost:8444
+      BANKING_BASE_URL: http://localhost:8445
+      APP_BANKING_BASE_URL: http://localhost:8445
+      SPRING_DATASOURCE_PASSWORD: ${IDENTITY_DB_PASSWORD:?required}
+      SPRING_MAIL_USERNAME: ${MAIL_USERNAME:?required}
+      SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD:?required}
+      APP_SECURITY_JWT_SECRET: ${JWT_SECRET:?required}
+      APP_INTERNAL_API_KEY: ${IDENTITY_API_KEY:?required}
+      EUREKA_INSTANCE_HOSTNAME: localhost
+    network_mode: host
+  o-back-banking:
+    image: ${IMAGE_REGISTRY:-quay.io/shashimadari}/o-bank-banking:${IMAGE_TAG:-demo-20261023}
+    restart: unless-stopped
+    depends_on:
+      eureka-server:
+        condition: service_started
+      oracle:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://localhost:8761/eureka/
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'false'
+      SPRING_DATASOURCE_URL: jdbc:oracle:thin:@//localhost:${ORACLE_HOST_PORT:-1522}/FREEPDB1
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+      KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+      IDENTITY_BASE_URL: http://localhost:8444
+      BANKING_BASE_URL: http://localhost:8445
+      APP_BANKING_BASE_URL: http://localhost:8445
+      SPRING_DATASOURCE_PASSWORD: ${BANKING_DB_PASSWORD:?required}
+      SPRING_MAIL_USERNAME: ${MAIL_USERNAME:?required}
+      SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD:?required}
+      APP_SECURITY_JWT_SECRET: ${JWT_SECRET:?required}
+      APP_INTERNAL_IDENTITY_API_KEY: ${IDENTITY_API_KEY:?required}
+      APP_INTERNAL_BANKING_API_KEY: ${BANKING_API_KEY:?required}
+      EUREKA_INSTANCE_HOSTNAME: localhost
+    network_mode: host
+  o-bank-credit:
+    image: ${IMAGE_REGISTRY:-quay.io/shashimadari}/o-bank-credit:${IMAGE_TAG:-demo-20261023}
+    restart: unless-stopped
+    depends_on:
+      eureka-server:
+        condition: service_started
+      o-back-banking:
+        condition: service_started
+      oracle:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://localhost:8761/eureka/
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'false'
+      SPRING_DATASOURCE_URL: jdbc:oracle:thin:@//localhost:${ORACLE_HOST_PORT:-1522}/FREEPDB1
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+      KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+      IDENTITY_BASE_URL: http://localhost:8444
+      BANKING_BASE_URL: http://localhost:8445
+      APP_BANKING_BASE_URL: http://localhost:8445
+      SPRING_DATASOURCE_PASSWORD: ${CREDIT_DB_PASSWORD:?required}
+      SPRING_MAIL_USERNAME: ${MAIL_USERNAME:?required}
+      SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD:?required}
+      APP_SECURITY_JWT_SECRET: ${JWT_SECRET:?required}
+      APP_INTERNAL_IDENTITY_API_KEY: ${IDENTITY_API_KEY:?required}
+      APP_INTERNAL_BANKING_API_KEY: ${BANKING_API_KEY:?required}
+      EUREKA_INSTANCE_HOSTNAME: localhost
+    network_mode: host
+  o-bank-forex:
+    image: ${IMAGE_REGISTRY:-quay.io/shashimadari}/o-bank-forex:${IMAGE_TAG:-demo-20261023}
+    restart: unless-stopped
+    depends_on:
+      eureka-server:
+        condition: service_started
+      oracle:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://localhost:8761/eureka/
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'false'
+      SPRING_DATASOURCE_URL: jdbc:oracle:thin:@//localhost:${ORACLE_HOST_PORT:-1522}/FREEPDB1
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+      KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+      IDENTITY_BASE_URL: http://localhost:8444
+      BANKING_BASE_URL: http://localhost:8445
+      APP_BANKING_BASE_URL: http://localhost:8445
+      SPRING_DATASOURCE_PASSWORD: ${FOREX_DB_PASSWORD:?required}
+      SPRING_MAIL_USERNAME: ${MAIL_USERNAME:?required}
+      SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD:?required}
+      APP_SECURITY_JWT_SECRET: ${JWT_SECRET:?required}
+      APP_INTERNAL_IDENTITY_API_KEY: ${IDENTITY_API_KEY:?required}
+      APP_INTERNAL_BANKING_API_KEY: ${BANKING_API_KEY:?required}
+      EUREKA_INSTANCE_HOSTNAME: localhost
+    network_mode: host
+  o-bank-investment:
+    image: ${IMAGE_REGISTRY:-quay.io/shashimadari}/o-bank-investment:${IMAGE_TAG:-demo-20261023}
+    restart: unless-stopped
+    depends_on:
+      eureka-server:
+        condition: service_started
+      oracle:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://localhost:8761/eureka/
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'false'
+      SPRING_DATASOURCE_URL: jdbc:oracle:thin:@//localhost:${ORACLE_HOST_PORT:-1522}/FREEPDB1
+      SPRING_KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+      KAFKA_BOOTSTRAP_SERVERS: localhost:9092
+      IDENTITY_BASE_URL: http://localhost:8444
+      BANKING_BASE_URL: http://localhost:8445
+      APP_BANKING_BASE_URL: http://localhost:8445
+      EUREKA_INSTANCE_HOSTNAME: localhost
+      SPRING_DATASOURCE_PASSWORD: ${INVESTMENT_DB_PASSWORD:?required}
+      SPRING_MAIL_USERNAME: ${MAIL_USERNAME:?required}
+      SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD:?required}
+      APP_SECURITY_JWT_SECRET: ${JWT_SECRET:?required}
+      APP_INTERNAL_IDENTITY_API_KEY: ${IDENTITY_API_KEY:?required}
+      APP_INTERNAL_BANKING_API_KEY: ${BANKING_API_KEY:?required}
+      APP_INTERNAL_SERVICE_KEY: ${INVESTMENT_SERVICE_KEY:?required}
+    network_mode: host
+  o-back-gateway:
+    image: ${IMAGE_REGISTRY:-quay.io/shashimadari}/o-bank-gateway:${IMAGE_TAG:-demo-20261023}
+    restart: unless-stopped
+    depends_on:
+    - eureka-server
+    - o-back-identity
+    - o-back-banking
+    - o-bank-credit
+    - o-bank-forex
+    - o-bank-investment
+    environment:
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://localhost:8761/eureka/
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'false'
+      EUREKA_INSTANCE_HOSTNAME: localhost
+    network_mode: host
+  o-bank-frontend:
+    image: ${IMAGE_REGISTRY:-quay.io/shashimadari}/o-bank-frontend:${IMAGE_TAG:-demo-20261023}
+    restart: unless-stopped
+    depends_on:
+    - o-back-gateway
+    network_mode: host
+volumes:
+  oracle-data: {}
+  kafka-data: {}

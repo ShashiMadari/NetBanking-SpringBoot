@@ -142,7 +142,10 @@ NetBanking-SpringBoot/
 |-- Containerfile.service           # Shared backend image build
 |-- compose.yaml                    # Bridged stack including Kafka
 |-- compose.mirrored.yaml           # Windows host networking stack
+|-- compose.full.yaml               # Published stack including Oracle and Kafka
+|-- infrastructure/                # Database schema and dependency image builds
 |-- run-mirrored.ps1                 # Build/start/stop/log wrapper
+|-- run-full.ps1                     # Pull/start/stop the 10-container stack
 |-- prepare-podman-env.ps1           # Creates private .env from template
 |-- publish-quay.ps1                 # Application image publishing
 |-- .env.example                    # Template without credentials
@@ -177,13 +180,13 @@ The current demo uses HTTP, including on port 8443; the port number alone does n
 - Git.
 - Java 17 and Maven, or the included Maven wrappers, for local backend development.
 - Node.js and npm compatible with this Oracle JET 17 project. The project setup used Node.js 18; dependencies are recorded in `frontend/package-lock.json`.
-- Oracle Database with the required service schemas, tables, stored procedures, grants, and test users.
-- An accessible Kafka broker for the mirrored stack.
+- Oracle Database with the required schemas and test users, or the provided Oracle container for a fresh structure-only database.
+- An accessible Kafka broker, or the provided Kafka container in the full stack.
 - Podman for Windows with a running Podman machine and WSL mirrored networking configured.
 - Python, including the `py` launcher, for the Windows Compose wrapper.
 - SMTP credentials to demonstrate OTP email, statements, or reminders.
 
-**Database setup is a prerequisite.** The included investment SQL is not a complete automated database installation for every service. No customer database export or preconfigured user credentials are included.
+For the application-only route, database provisioning is a prerequisite. The **[full-stack route](DEPLOY-FULL.md)** now initializes all five application schemas automatically in a fresh Oracle container. Neither route includes customer records, catalogue seed data, or preconfigured user credentials.
 
 ## Run published containers
 
@@ -200,7 +203,9 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\run-mirrored.ps1 pull
 powershell -NoProfile -ExecutionPolicy Bypass -File .\run-mirrored.ps1 up -d
 ```
 
-See **[the complete Quay deployment guide](DEPLOY-QUAY.md)** for prerequisites and configuration. The published images target Linux/AMD64 and the Windows WSL mirrored stack. No local application build is needed for this route. The source-build instructions below are the alternative for development.
+**Oracle and Kafka are now containerized too.** Use **[the full 10-container deployment guide](DEPLOY-FULL.md)** and `run-full.ps1` to initialize fresh O-Bank schemas and an empty Kafka broker. This includes 55 application tables and stored packages, but no customer records or pre-created logins.
+
+Use **[the application-only Quay deployment guide](DEPLOY-QUAY.md)** if Oracle and Kafka already run separately. The published images target Linux/AMD64 and the Windows WSL mirrored stack. No local application build is needed for either published route. The source-build instructions below are the alternative for development.
 
 ## Setup and startup
 
@@ -418,7 +423,7 @@ Some tests require configured dependencies. This repository does not claim full 
 - `.env` is ignored by Git; `.env.example` documents required settings.
 - Generated files, local environments, dependencies, and logs are excluded.
 - No private database exports or pre-funded demo customer data are included.
-- Included schema scripts are not a complete Oracle provisioning package.
+- The full deployment initializes empty application schemas; users, accounts, and reference/catalogue data must be provisioned separately.
 - Demo rates, accelerated scheduler timings, and manual FD maturity settlement are documented above.
 - Startup on another machine depends on its database, Kafka, mail, and networking setup.
 

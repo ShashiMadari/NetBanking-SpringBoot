@@ -1,0 +1,14 @@
+ARG ORACLE_BASE=container-registry.oracle.com/database/free:latest
+FROM ${ORACLE_BASE}
+# Keep Oracle binaries and their included /licenses/license.txt unchanged.
+# Only structure-only application SQL and an initialization hook are added.
+USER root
+COPY schema/ /opt/oracle/obank-schema/
+COPY 01-init-obank.sh /opt/oracle/scripts/startup/01-init-obank.sh
+RUN chmod 755 /opt/oracle/scripts/startup/01-init-obank.sh \
+    && chmod -R a+rX /opt/oracle/obank-schema
+USER oracle
+LABEL org.opencontainers.image.title="O-Bank Oracle Database Free" \
+      org.opencontainers.image.description="Oracle Database Free with empty O-Bank schemas; runtime passwords required; no customer data" \
+      org.opencontainers.image.source="https://github.com/ShashiMadari/NetBanking-SpringBoot" \
+      org.opencontainers.image.licenses="Oracle Free Use Terms and Conditions; see /licenses/license.txt"

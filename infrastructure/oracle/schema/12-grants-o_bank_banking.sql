@@ -1,0 +1,1 @@
+-- Cross-schema object grants received by O_BANK_BANKING

@@ -1,0 +1,20 @@
+FROM registry.access.redhat.com/ubi9/openjdk-17-runtime:latest
+# Supply the extracted official Kafka 4.3.1 distribution as the kafkadist build context.
+USER root
+WORKDIR /opt/kafka
+COPY --from=kafkadist bin/ /opt/kafka/bin/
+COPY --from=kafkadist libs/ /opt/kafka/libs/
+COPY --from=kafkadist config/log4j2.yaml config/tools-log4j2.yaml /opt/kafka/config/
+COPY server.properties /opt/kafka/config/server.properties
+COPY start-kafka.sh /opt/kafka/start-kafka.sh
+COPY LICENSE NOTICE /opt/kafka/
+COPY licenses/ /opt/kafka/licenses/
+RUN chmod +x /opt/kafka/bin/*.sh /opt/kafka/start-kafka.sh \
+    && mkdir -p /var/lib/kafka/data /tmp/kafka-logs
+ENV KAFKA_HEAP_OPTS="-Xmx512M -Xms512M"
+LABEL org.opencontainers.image.title="O-Bank Kafka" \
+      org.opencontainers.image.description="Single-node Kafka KRaft broker for the O-Bank mirrored demo; no message data" \
+      org.opencontainers.image.source="https://github.com/ShashiMadari/NetBanking-SpringBoot" \
+      org.opencontainers.image.licenses="Apache-2.0"
+EXPOSE 9092 9093
+ENTRYPOINT ["/bin/bash", "/opt/kafka/start-kafka.sh"]

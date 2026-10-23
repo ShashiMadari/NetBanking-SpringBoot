@@ -1,5 +1,7 @@
 # Run O-Bank with Podman
 
+For the published stack **including Oracle and Kafka containers**, use [DEPLOY-FULL.md](DEPLOY-FULL.md) and `run-full.ps1`. The mirrored/bridged instructions below describe the alternative application deployment configurations.
+
 ## This Windows machine: mirrored networking
 
 Your earlier working Podman setup used WSL mirrored networking and host-network containers to reach Oracle on `localhost:1522` and an existing Kafka broker on `localhost:9092`. The new `compose.mirrored.yaml` uses the same approach for the current backend copy and adds the frontend on `localhost:8001` because port `8000` is already in use. It does not start a second Kafka broker.

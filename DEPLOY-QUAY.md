@@ -2,6 +2,8 @@
 
 The eight application images are published under **`quay.io/shashimadari`**. All repositories are public; no Quay login is needed to pull them.
 
+**Oracle and Kafka are also available as containers.** To start all 10 components with fresh persistent database and broker volumes, use **[DEPLOY-FULL.md](DEPLOY-FULL.md)** and `run-full.ps1`. The instructions below are the alternative for an existing external Oracle/Kafka setup.
+
 - Version tag: **`demo-20261023`**
 - Convenience tag: **`latest`** (can change with future publications)
 - Platform: **Linux / AMD64**
