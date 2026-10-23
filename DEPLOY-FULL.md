@@ -85,6 +85,18 @@ Wait for Oracle initialization and dependency health checks. Open **<http://loca
 
 ## 3. Check initialization
 
+### Update an existing deployment
+
+The `demo-20261023` Identity image was refreshed with the registration account-eligibility fix. Update the Compose configuration together with the image: Identity needs `APP_INTERNAL_BANKING_API_KEY` for calls to Banking and `APP_MAIL_FROM` for its sender address. These settings are supplied from your existing `.env`.
+
+```powershell
+git pull --ff-only
+powershell -NoProfile -ExecutionPolicy Bypass -File .\run-full.ps1 pull o-back-identity
+powershell -NoProfile -ExecutionPolicy Bypass -File .\run-full.ps1 up -d
+```
+
+Allow service discovery to refresh after restart. Already activated users should sign in; first-time registration is for bank customers whose net banking status is `NOT_REGISTERED`.
+
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File .\run-full.ps1 logs --tail=100 oracle
 powershell -NoProfile -ExecutionPolicy Bypass -File .\run-full.ps1 logs --tail=100 kafka

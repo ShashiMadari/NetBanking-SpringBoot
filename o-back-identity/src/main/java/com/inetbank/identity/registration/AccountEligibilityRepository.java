@@ -15,7 +15,7 @@ public class AccountEligibilityRepository {
     AccountEligibilityRepository(
             @Value("${app.banking.base-url:http://localhost:8445}")
             String bankingBaseUrl,
-            @Value("${app.internal.api-key}")
+            @Value("${app.internal.banking-api-key}")
             String internalApiKey) {
 
         this.bankingClient = RestClient.builder().baseUrl(bankingBaseUrl).build();

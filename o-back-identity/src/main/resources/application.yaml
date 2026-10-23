@@ -52,6 +52,7 @@ app:
 
   internal:
     api-key: ${IDENTITY_API_KEY}
+    banking-api-key: ${BANKING_API_KEY}
 
   mail:
-    from: ${MAIL_USERNAME}
+    from: ${spring.mail.username}

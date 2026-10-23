@@ -38,7 +38,7 @@
     },
     {
       "image": "quay.io/shashimadari/o-bank-identity:demo-20261023",
-      "digest": "sha256:b21c698dc9733a45b303217d89c893fab9ddc86c06208870e16868c2ce2ee936",
+      "digest": "sha256:2c280856331ebf47b2e42f9a7e8cec7b1144cc9061f76776da2a12edabbcbf00",
       "anonymous_pull_verified": true
     },
     {

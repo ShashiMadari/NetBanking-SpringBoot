@@ -68,6 +68,8 @@ services:
       SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD:?required}
       APP_SECURITY_JWT_SECRET: ${JWT_SECRET:?required}
       APP_INTERNAL_API_KEY: ${IDENTITY_API_KEY:?required}
+      APP_INTERNAL_BANKING_API_KEY: ${BANKING_API_KEY:?required}
+      APP_MAIL_FROM: ${MAIL_USERNAME:?required}
 
   banking:
     image: ${IMAGE_REGISTRY:-localhost}/o-bank-banking:${IMAGE_TAG:-dev}
