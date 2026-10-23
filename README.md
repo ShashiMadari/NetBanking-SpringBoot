@@ -10,6 +10,8 @@ O-Bank brings customer banking and bank administration into one application. It 
 
 The backend uses separate Spring Boot services with Eureka discovery and an API gateway. The frontend uses Oracle JET and TypeScript. Oracle Database stores application data, Kafka carries asynchronous events, and Podman runs the application containers.
 
+> **Run the published stack:** all **10 container images**, including Oracle and Kafka, are public on Quay.io. Start with **[DEPLOY-FULL.md](DEPLOY-FULL.md)** to pull and run them without building the application locally.
+
 ## Contents
 
 - [Features](#features)
@@ -190,22 +192,56 @@ For the application-only route, database provisioning is a prerequisite. The **[
 
 ## Run published containers
 
-The eight prebuilt application images are publicly available under **`quay.io/shashimadari`**, with tags **`demo-20261023`** and **`latest`**. No Quay login is required to pull them.
+All **10 prebuilt images** are publicly available under **`quay.io/shashimadari`**, with tags **`demo-20261023`** and **`latest`**. Anonymous pulls were verified for every image. Use the dated tag for this release; `latest` can change with future publications.
+
+| Component | Image repository |
+| --- | --- |
+| Frontend / Nginx | `quay.io/shashimadari/o-bank-frontend` |
+| Eureka | `quay.io/shashimadari/o-bank-eureka` |
+| Gateway | `quay.io/shashimadari/o-bank-gateway` |
+| Identity | `quay.io/shashimadari/o-bank-identity` |
+| Banking | `quay.io/shashimadari/o-bank-banking` |
+| Credit and loans | `quay.io/shashimadari/o-bank-credit` |
+| Forex | `quay.io/shashimadari/o-bank-forex` |
+| Investments | `quay.io/shashimadari/o-bank-investment` |
+| Oracle Database | `quay.io/shashimadari/o-bank-oracle` |
+| Kafka | `quay.io/shashimadari/o-bank-kafka` |
+
+Browse [the public Quay namespace](https://quay.io/user/shashimadari/). The [release image inventory](container-images.json) records the verified registry digests for all 10 images.
+
+### Full stack: application, Oracle, and Kafka
+
+From the cloned repository root, create `.env`:
 
 ```powershell
-podman pull quay.io/shashimadari/o-bank-frontend:demo-20261023
+powershell -NoProfile -ExecutionPolicy Bypass -File .\prepare-podman-env.ps1
 ```
 
-For the full application, configure your own Oracle, Kafka, and runtime credentials, then set `IMAGE_REGISTRY=quay.io/shashimadari` and `IMAGE_TAG=demo-20261023` in `.env`. Use the mirrored deployment:
+Fill every runtime credential in `.env`, including `ORACLE_PWD` and the five schema passwords. Set the registry and release:
+
+```dotenv
+IMAGE_REGISTRY=quay.io/shashimadari
+IMAGE_TAG=demo-20261023
+ORACLE_HOST_PORT=1522
+```
+
+If an existing Oracle listener uses port 1522, choose `ORACLE_HOST_PORT=11522`. Start the Podman machine if it is stopped, then pull and run all 10 services:
 
 ```powershell
-powershell -NoProfile -ExecutionPolicy Bypass -File .\run-mirrored.ps1 pull
-powershell -NoProfile -ExecutionPolicy Bypass -File .\run-mirrored.ps1 up -d
+powershell -NoProfile -ExecutionPolicy Bypass -File .\run-full.ps1 pull
+powershell -NoProfile -ExecutionPolicy Bypass -File .\run-full.ps1 up -d
+powershell -NoProfile -ExecutionPolicy Bypass -File .\run-full.ps1 ps
 ```
 
-**Oracle and Kafka are now containerized too.** Use **[the full 10-container deployment guide](DEPLOY-FULL.md)** and `run-full.ps1` to initialize fresh O-Bank schemas and an empty Kafka broker. This includes 55 application tables and stored packages, but no customer records or pre-created logins.
+Wait for dependency health checks and service registration, then open **<http://localhost:8001>**. Use `run-full.ps1 down` to stop the stack while keeping its named data volumes. Do not add `--build` for these published images.
 
-Use **[the application-only Quay deployment guide](DEPLOY-QUAY.md)** if Oracle and Kafka already run separately. The published images target Linux/AMD64 and the Windows WSL mirrored stack. No local application build is needed for either published route. The source-build instructions below are the alternative for development.
+The Oracle image initializes **55 empty application tables** across five schemas, including stored packages, constraints, indexes, and triggers. Supply your own demo users, accounts, and catalogue/reference data. Passwords come from your private `.env`; customer records and pre-created logins are not bundled in the image.
+
+See **[the full deployment guide](DEPLOY-FULL.md)** for networking requirements, password settings, persistence, logs, and image build instructions.
+
+### Alternative: use existing Oracle and Kafka
+
+Use **[the application-only guide](DEPLOY-QUAY.md)** and `run-mirrored.ps1` if Oracle and Kafka already run separately. The published images target Linux/AMD64 and the Windows WSL mirrored stack. Neither published route requires a local application build. The source-build instructions below are the alternative for development with external dependencies.
 
 ## Setup and startup
 

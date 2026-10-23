@@ -1,0 +1,60 @@
+{
+  "release": "demo-20261023",
+  "verification_date": "2026-10-23",
+  "platform": "linux/amd64",
+  "registry": "quay.io/shashimadari",
+  "image_count": 10,
+  "deployment_file": "compose.full.yaml",
+  "images": [
+    {
+      "image": "quay.io/shashimadari/o-bank-banking:demo-20261023",
+      "digest": "sha256:ed9af78a0685029657cb354710703596cc4a204b64ebb04dbed6a14ef49d29ad",
+      "anonymous_pull_verified": true
+    },
+    {
+      "image": "quay.io/shashimadari/o-bank-credit:demo-20261023",
+      "digest": "sha256:b61dd942b11172b9d4c657dc597e888762846fcdde81103c8e09b628d2f045a5",
+      "anonymous_pull_verified": true
+    },
+    {
+      "image": "quay.io/shashimadari/o-bank-eureka:demo-20261023",
+      "digest": "sha256:6ed8f835455c9ea048983b2c9e9ecfe183ca32797f86f6d7adfcb37d785de7a0",
+      "anonymous_pull_verified": true
+    },
+    {
+      "image": "quay.io/shashimadari/o-bank-forex:demo-20261023",
+      "digest": "sha256:2f3f6f4eac1cb7408e3abcef86fc4ca1d691e89f3c9c9d4bef5c7ef1dc730699",
+      "anonymous_pull_verified": true
+    },
+    {
+      "image": "quay.io/shashimadari/o-bank-frontend:demo-20261023",
+      "digest": "sha256:e91609c156ec0fefb2f7bd783a29fda6feb5a493f345aa465bec6e718ba8e408",
+      "anonymous_pull_verified": true
+    },
+    {
+      "image": "quay.io/shashimadari/o-bank-gateway:demo-20261023",
+      "digest": "sha256:566155a6b9809aa3873b3b0216744472433909ac41e860cf5078ebe082ec2c72",
+      "anonymous_pull_verified": true
+    },
+    {
+      "image": "quay.io/shashimadari/o-bank-identity:demo-20261023",
+      "digest": "sha256:b21c698dc9733a45b303217d89c893fab9ddc86c06208870e16868c2ce2ee936",
+      "anonymous_pull_verified": true
+    },
+    {
+      "image": "quay.io/shashimadari/o-bank-investment:demo-20261023",
+      "digest": "sha256:371925bedb7dc9ed9f70f8696e743f0f0ecdd60e642239223c85201263d0c19b",
+      "anonymous_pull_verified": true
+    },
+    {
+      "image": "quay.io/shashimadari/o-bank-kafka:demo-20261023",
+      "digest": "sha256:c9c39c3d6ae12c20eee8f0daf1a7c17dfae687d4141c01cbdc0448af3f462aff",
+      "anonymous_pull_verified": true
+    },
+    {
+      "image": "quay.io/shashimadari/o-bank-oracle:demo-20261023",
+      "digest": "sha256:a6fa7afa19739da25b60d1acd64c4b931046226b4b685f32b4b57dad11e22779",
+      "anonymous_pull_verified": true
+    }
+  ]
+}

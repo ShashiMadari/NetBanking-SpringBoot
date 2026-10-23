@@ -9,6 +9,8 @@ This deployment uses **10 published images**: the eight application services plu
 
 Both also provide `latest`. Use the dated tag for this deployment. Images target Linux/AMD64. Oracle binaries and their included license are retained unchanged; see `/licenses/license.txt` in the image and the [Oracle Free Use Terms and Conditions](https://www.oracle.com/downloads/licenses/oracle-free-license.html). Kafka license and notice files are included under `/opt/kafka`.
 
+Public pulls were verified for both dependencies and the eight application images. See [container-images.json](container-images.json) for the release's registry digests.
+
 ## What is included
 
 - Oracle creates `O_BANK_IDENTITY`, `O_BANK_BANKING`, `O_BANK_CREDIT`, `O_BANK_FOREX`, and `O_BANK_INVESTMENT` using passwords supplied at runtime.
