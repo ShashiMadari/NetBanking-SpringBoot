@@ -22,3 +22,4 @@
 .vscode/
 Thumbs.db
 .DS_Store
+.local-demo-seed/

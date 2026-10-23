@@ -235,7 +235,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\run-full.ps1 ps
 
 Wait for dependency health checks and service registration, then open **<http://localhost:8001>**. Use `run-full.ps1 down` to stop the stack while keeping its named data volumes. Do not add `--build` for these published images.
 
-The Oracle image initializes **55 empty application tables** across five schemas, including stored packages, constraints, indexes, and triggers. Supply your own demo users, accounts, and catalogue/reference data. Passwords come from your private `.env`; customer records and pre-created logins are not bundled in the image.
+The Oracle image initializes **55 empty application tables** across five schemas, including stored packages, constraints, indexes, and triggers. Use the optional [demo-data setup script](DEPLOY-FULL.md#add-your-own-demo-users-and-data) to add two customers, an admin, funded accounts and reference data locally, or provision your own records. Infrastructure passwords come from your private `.env`; customer records and pre-created logins are not bundled in the image.
 
 See **[the full deployment guide](DEPLOY-FULL.md)** for networking requirements, password settings, persistence, logs, and image build instructions.
 

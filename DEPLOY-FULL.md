@@ -19,7 +19,7 @@ Public pulls were verified for both dependencies and the eight application image
 - Kafka initializes a new broker data directory when its volume is empty.
 - Oracle and Kafka use separate persistent named volumes. The application waits for their health checks before starting database-dependent services.
 
-**No customer records, account balances, administrator logins, password hashes, catalogue seed records, or old Kafka messages are included.** Provision your own demo users, accounts, reference data, and product catalogues after initialization. Registration requires an existing eligible customer; an empty schema alone does not create a customer or administrator.
+**No customer records, account balances, administrator logins, password hashes, catalogue seed records, or old Kafka messages are included in the images.** After initialization, use the optional [local demo-data setup](#add-your-own-demo-users-and-data) or provision your own records. Registration requires an existing eligible customer; an empty schema alone does not create a customer or administrator.
 
 ## Requirements
 
@@ -119,6 +119,36 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\run-full.ps1 down
 ```
 
 The `o-bank-full` project retains its `oracle-data` and `kafka-data` volumes. Avoid `down -v` when you want to keep data. Image updates do not automatically change existing database structures or passwords; initialization is not a migration or password-rotation mechanism.
+
+## Add your own demo users and data
+
+Run this once against a **fresh full-stack database** after Oracle is healthy. The script refuses to seed a database that already has users; it does not reset existing data. Use email addresses you control so you can receive login OTPs. Configure your own working SMTP sender and password in `.env` first.
+
+From the repository root, replace the three example email addresses and names:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File .\seed-demo.ps1 -Customer1Email "your-first-email@example.com" -Customer1Name "First Customer" -Customer2Email "your-second-email@example.com" -Customer2Name "Second Customer" -AdminEmail "your-admin-email@example.com" -AdminName "Demo Administrator"
+```
+
+Python is required, as for the Compose wrapper. The script installs `bcrypt==4.3.0` in the repository's private `.venv` if needed, generates separate random passwords, hashes passwords and card PIN with BCrypt, then applies one SQL transaction to `o-bank-full_oracle_1` / `FREEPDB1`. Optional `-Customer1Phone`, `-Customer2Phone` and `-AdminPhone` arguments replace the distinct synthetic phone numbers. `-OracleContainer` selects another full-stack Oracle container explicitly. It does not target a native host Oracle installation.
+
+The fixture includes:
+
+- Two activated customers and one administrator.
+- One savings and one current account per customer, each with INR 1,000,000 and a matching opening deposit record.
+- Credit and debit cards with valid daily/credit limits and a generated demo PIN.
+- One illustrative personal loan per customer, with 12 EMI installments starting on the tenth of the month two months after seeding.
+- Approved Forex KYC, four empty currency wallets per customer, an empty USD Forex card, and four illustrative reference rates.
+- Verified demo investment profiles, active demo Demat accounts, eight product types and paused SIP templates. Wallets and portfolios start empty; purchase and fund through the application.
+- A branch, billers, merchants, internal beneficiaries and provisioning audit/notification records.
+
+All prices, rates, loan balances, names and initial account funds are demo fixtures. No payment or loan disbursement is performed by this SQL setup. SIP templates remain paused until deliberately resumed. Existing accelerated statement/reminder jobs may send messages later as their conditions are met.
+
+The command prints the location of **`login-details.txt`**, containing the three generated passwords and card PIN. It lives under the Git-ignored `.local-demo-seed/` directory alongside the generated SQL. Keep these files private. They are not uploaded to Quay or committed to GitHub.
+
+Open <http://localhost:8001> and choose **Sign in** using the generated details. These accounts are already activated, so do not use the registration screen. Select **Sign in as bank administrator** for the admin and complete the emailed OTP.
+
+To inspect the generated files without connecting to Oracle, add `-DryRun`. A dry run does not add users; run the normal command afterward to provision them and use the login details produced by that successful run.
 
 ## Pull dependencies individually
 
